@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sozialplaner</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
 <style>
 :root{--bg:#f8f5f0;--surface:#fff;--surface2:#f2ede6;--border:rgba(60,50,30,.12);--text:#2a2218;--muted:#7a6e5f;--accent:#c0784a;--accent2:#5a7a6a;--danger:#b84040;--warn:#9a6a10;--radius:12px;--shadow:0 2px 16px rgba(60,40,10,.08);}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -156,6 +157,7 @@ textarea{resize:vertical;min-height:72px;}
   <button onclick="switchPage('activities',this)">Aktivitäten</button>
   <button onclick="switchPage('calendar',this)">Kalender</button>
   <button onclick="switchPage('log',this)">Verlauf</button>
+  <button onclick="logout()" style="color:var(--danger);margin-left:auto;">Abmelden</button>
 </nav>
 
 <!-- HOME -->
@@ -418,6 +420,52 @@ textarea{resize:vertical;min-height:72px;}
 const API = 'https://sozialplaner-api.onrender.com/api';
 
 // ============================================================
+// AUTH0 CONFIG
+// ============================================================
+const AUTH_CONFIG = {
+  domain: 'sozialplaner.eu.auth0.com',
+  clientId: 'DKassLseyaZgBXCozWZzsXeHrgD22c8np',
+  authorizationParams: {
+    redirect_uri: 'https://taniagur.github.io/social_planner.html',
+    audience: 'https://sozialplaner-api.onrender.com',
+  }
+};
+
+let auth0Client = null;
+let currentUser = null;
+
+async function initAuth() {
+  auth0Client = await auth0.createAuth0Client(AUTH_CONFIG);
+
+  // Handle redirect callback after login
+  if (window.location.search.includes('code=')) {
+    await auth0Client.handleRedirectCallback();
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  const isAuthenticated = await auth0Client.isAuthenticated();
+  if (isAuthenticated) {
+    currentUser = await auth0Client.getUser();
+    document.getElementById('loading-overlay').classList.add('hidden');
+    loadDB();
+  } else {
+    await auth0Client.loginWithRedirect();
+  }
+}
+
+async function getToken() {
+  return auth0Client.getTokenSilently({
+    authorizationParams: { audience: 'https://sozialplaner-api.onrender.com' }
+  });
+}
+
+async function logout() {
+  await auth0Client.logout({
+    logoutParams: { returnTo: 'https://taniagur.github.io/social_planner.html' }
+  });
+}
+
+// ============================================================
 // XSS PREVENTION — all user data goes through h()
 // ============================================================
 const h = str => String(str ?? '')
@@ -435,8 +483,12 @@ let lastSugg = null, swapIdx = null;
 // API LAYER — all CRUD goes through here
 // ============================================================
 async function apiFetch(path, options = {}) {
+  const token = await getToken();
   const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
     ...options,
   });
   if (!res.ok) {
@@ -1216,7 +1268,7 @@ document.addEventListener('keydown', e => {
 
 // Init
 document.getElementById('s-date').value = new Date().toISOString().slice(0,10);
-loadDB();
+initAuth();
 </script>
 </body>
 </html>
