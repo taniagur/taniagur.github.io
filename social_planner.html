@@ -438,8 +438,13 @@ async function initAuth() {
   auth0Client = await auth0.createAuth0Client(AUTH_CONFIG);
 
   // Handle redirect callback after login
-  if (window.location.search.includes('code=')) {
-    await auth0Client.handleRedirectCallback();
+  if (window.location.search.includes('code=') && 
+      window.location.search.includes('state=')) {
+    try {
+      await auth0Client.handleRedirectCallback();
+    } catch(e) {
+      console.error('Callback error:', e);
+    }
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
