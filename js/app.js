@@ -53,20 +53,23 @@ function navigate(hash) {
 // ============================================================
 async function loadData() {
   document.getElementById('loading-overlay').classList.remove('hidden');
-  const [fr, ac, ev] = await Promise.all([
-    Store.getFriends(),
-    Store.getActivities(),
-    Store.getEvents(),
-  ]);
-  if (fr.error || ac.error || ev.error) {
-    showToast('Verbindung fehlgeschlagen — bitte Seite neu laden.', 'error');
+  try {
+    const [fr, ac, ev] = await Promise.all([
+      Store.getFriends(),
+      Store.getActivities(),
+      Store.getEvents(),
+    ]);
+    if (fr.error || ac.error || ev.error) {
+      showToast('Verbindung fehlgeschlagen — bitte Seite neu laden.', 'error');
+    }
+    setState({
+      friends:    fr.data ?? [],
+      activities: ac.data ?? [],
+      events:     ev.data ?? [],
+    });
+  } finally {
+    document.getElementById('loading-overlay').classList.add('hidden');
   }
-  setState({
-    friends:    fr.data ?? [],
-    activities: ac.data ?? [],
-    events:     ev.data ?? [],
-  });
-  document.getElementById('loading-overlay').classList.add('hidden');
 }
 
 // ============================================================
@@ -102,6 +105,12 @@ sidebarOverlay.addEventListener('click', closeSidebar);
 
 // Close modals via data-modal-close attribute
 document.addEventListener('click', e => {
+  // Onboarding dismiss — overlay is outside #login-screen, so handled globally
+  if (e.target.id === 'onboarding-done-btn') {
+    localStorage.setItem('sp_onboarding_done', '1');
+    document.getElementById('onboarding-overlay').style.display = 'none';
+    return;
+  }
   const closeEl = e.target.closest('[data-modal-close]');
   if (closeEl) {
     document.getElementById(closeEl.dataset.modalClose)?.classList.remove('open');
@@ -177,19 +186,26 @@ Auth.onAuthStateChange((event, session) => {
 // INIT
 // ============================================================
 async function init() {
-  const { data } = await Auth.getCurrentUser();
-  if (data?.user) {
-    const user = data.user;
-    setState({ user });
-    setUserInfo(user);
-    document.getElementById('app').style.display          = '';
-    document.getElementById('login-screen').style.display = 'none';
-    await loadData();
-    navigate(location.hash || '#/');
-    LoginView.showOnboardingIfNeeded();
-  } else {
+  try {
+    const { data } = await Auth.getCurrentUser();
+    if (data?.user) {
+      const user = data.user;
+      setState({ user });
+      setUserInfo(user);
+      document.getElementById('app').style.display          = '';
+      document.getElementById('login-screen').style.display = 'none';
+      await loadData();
+      navigate(location.hash || '#/');
+      LoginView.showOnboardingIfNeeded();
+    } else {
+      document.getElementById('loading-overlay').classList.add('hidden');
+      LoginView.render();
+    }
+  } catch (err) {
+    // Always dismiss loading overlay so the user isn't stuck
     document.getElementById('loading-overlay').classList.add('hidden');
     LoginView.render();
+    console.error('Init error:', err);
   }
 }
 
