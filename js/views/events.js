@@ -28,44 +28,44 @@ function renderCalendar() {
   if (titleEl) titleEl.textContent = `${months[_calM]} ${_calY}`;
   const grid  = document.getElementById('cal-grid');
   if (!grid) return;
-  const first = new Date(_calY, _calM, 1), last = new Date(_calY, _calM+1, 0);
-  let off     = first.getDay()-1; if (off<0) off=6;
+  const first = new Date(_calY, _calM, 1), last = new Date(_calY, _calM + 1, 0);
+  let off     = first.getDay() - 1; if (off < 0) off = 6;
   const tod   = new Date();
   let markup  = '';
   const pl    = new Date(_calY, _calM, 0).getDate();
-  for (let i=off-1; i>=0; i--)
-    markup += `<div class="cal-day other-month"><div class="day-num">${pl-i}</div></div>`;
-  for (let d=1; d<=last.getDate(); d++) {
-    const ds  = `${_calY}-${pad2(_calM+1)}-${pad2(d)}`;
-    const isT = tod.getFullYear()===_calY && tod.getMonth()===_calM && tod.getDate()===d;
-    const evs = events.filter(e=>e.date===ds);
-    markup += `<div class="cal-day ${isT?'today':''} ${evs.length?'has-event':''}" data-action="select-day" data-date="${ds}">
+  for (let i = off - 1; i >= 0; i--)
+    markup += `<div class="cal-day other-month"><div class="day-num">${pl - i}</div></div>`;
+  for (let d = 1; d <= last.getDate(); d++) {
+    const ds  = `${_calY}-${pad2(_calM + 1)}-${pad2(d)}`;
+    const isT = tod.getFullYear() === _calY && tod.getMonth() === _calM && tod.getDate() === d;
+    const evs = events.filter(e => e.date === ds);
+    markup += `<div class="cal-day ${isT ? 'today' : ''} ${evs.length ? 'has-event' : ''}" data-action="select-day" data-date="${ds}">
       <div class="day-num">${d}</div>
-      ${evs.map(e=>`<div class="cal-event ${e.mode==='romantic'?'romantic':''}">${h(e.activityName)}</div>`).join('')}
+      ${evs.map(e => `<div class="cal-event ${e.mode === 'romantic' ? 'romantic' : ''}">${h(e.activityName)}</div>`).join('')}
     </div>`;
   }
-  const rem = (off+last.getDate())%7;
-  for (let i=1; i<=(rem===0?0:7-rem); i++)
+  const rem = (off + last.getDate()) % 7;
+  for (let i = 1; i <= (rem === 0 ? 0 : 7 - rem); i++)
     markup += `<div class="cal-day other-month"><div class="day-num">${i}</div></div>`;
   grid.innerHTML = markup;
 }
 
 function selectDay(ds) {
   const { events } = getState();
-  const evs = events.filter(e=>e.date===ds);
-  const lbl = new Date(ds).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const evs = events.filter(e => e.date === ds);
+  const lbl = new Date(ds).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   let markup = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
     <strong style="font-size:15px;">${lbl}</strong>
     <button class="btn btn-sm btn-primary" data-action="open-cal-day" data-date="${ds}">+ Treffen</button>
   </div>`;
   if (!evs.length) { markup += '<div style="font-size:13px;color:var(--muted);">Keine Treffen.</div>'; }
-  else markup += evs.map(e=>`<div class="log-entry ${e.done?'done':''} ${e.mode==='romantic'?'romantic':''}">
-    <div class="log-activity">${h(e.activityName)}${e.mode==='romantic'?' ♥':''}${e.time?' · '+h(e.time):''}</div>
-    <div class="log-people">${h(e.people??'–')}</div>
-    ${e.note?`<div class="log-note">${h(e.note)}</div>`:''}
+  else markup += evs.map(e => `<div class="log-entry ${e.done ? 'done' : ''} ${e.mode === 'romantic' ? 'romantic' : ''}">
+    <div class="log-activity">${h(e.activityName)}${e.mode === 'romantic' ? ' ♥' : ''}${e.time ? ' · ' + h(e.time) : ''}</div>
+    <div class="log-people">${h(e.people ?? '–')}</div>
+    ${e.note ? `<div class="log-note">${h(e.note)}</div>` : ''}
     <div class="log-actions">
-      <input type="checkbox" class="check-done" ${e.done?'checked':''} data-action="toggle-done" data-id="${e.id}" data-val="${e.done?'false':'true'}">
-      <span style="font-size:12px;color:var(--muted);">${e.done?'Abgehakt':'Als erledigt markieren'}</span>
+      <input type="checkbox" class="check-done" ${e.done ? 'checked' : ''} data-action="toggle-done" data-id="${e.id}" data-val="${e.done ? 'false' : 'true'}">
+      <span style="font-size:12px;color:var(--muted);">${e.done ? 'Abgehakt' : 'Als erledigt markieren'}</span>
       <button class="btn btn-sm btn-danger" style="margin-left:auto;" data-action="delete-event" data-id="${e.id}" data-date="${ds}">Entfernen</button>
     </div>
   </div>`).join('');
@@ -76,17 +76,17 @@ function selectDay(ds) {
 }
 
 function calPrev() {
-  _calM--; if(_calM<0){_calM=11;_calY--;}
+  _calM--; if (_calM < 0) { _calM = 11; _calY--; }
   renderCalendar();
   const dd = document.getElementById('day-detail');
-  if (dd) dd.style.display='none';
+  if (dd) dd.style.display = 'none';
 }
 
 function calNext() {
-  _calM++; if(_calM>11){_calM=0;_calY++;}
+  _calM++; if (_calM > 11) { _calM = 0; _calY++; }
   renderCalendar();
   const dd = document.getElementById('day-detail');
-  if (dd) dd.style.display='none';
+  if (dd) dd.style.display = 'none';
 }
 
 // ============================================================
@@ -97,44 +97,70 @@ function renderLog() {
   const fp = document.getElementById('log-filter-person');
   const fa = document.getElementById('log-filter-activity');
   if (!fp || !fa) return;
-  const sp=fp.value, sa=fa.value;
-  const sm=document.getElementById('log-filter-mode')?.value ?? '';
-  const sd=document.getElementById('log-filter-done')?.value ?? '';
-  fp.innerHTML = '<option value="">Alle Personen</option>'+friends.map(f=>`<option value="${f.id}" ${sp===f.id?'selected':''}>${h(f.name)}</option>`).join('');
-  fa.innerHTML = '<option value="">Alle Aktivitäten</option>'+activities.map(a=>`<option value="${a.id}" ${sa===a.id?'selected':''}>${h(a.name)}</option>`).join('');
-  let evs = [...events].sort((a,b)=>b.date.localeCompare(a.date));
-  if (sp) evs = evs.filter(e=>(e.peopleIds??[]).includes(sp));
-  if (sa) evs = evs.filter(e=>e.activityId===sa);
-  if (sm) evs = evs.filter(e=>e.mode===sm);
-  if (sd==='open') evs = evs.filter(e=>!e.done);
-  if (sd==='done') evs = evs.filter(e=>e.done);
+  const sp = fp.value, sa = fa.value;
+  const sm = document.getElementById('log-filter-mode')?.value ?? '';
+  const sd = document.getElementById('log-filter-done')?.value ?? '';
+  fp.innerHTML = '<option value="">Alle Personen</option>' + friends.map(f => `<option value="${f.id}" ${sp === f.id ? 'selected' : ''}>${h(f.name)}</option>`).join('');
+  fa.innerHTML = '<option value="">Alle Aktivitäten</option>' + activities.map(a => `<option value="${a.id}" ${sa === a.id ? 'selected' : ''}>${h(a.name)}</option>`).join('');
+  let evs = [...events].sort((a, b) => b.date.localeCompare(a.date));
+  if (sp) evs = evs.filter(e => (e.peopleIds ?? []).includes(sp));
+  if (sa) evs = evs.filter(e => e.activityId === sa);
+  if (sm) evs = evs.filter(e => e.mode === sm);
+  if (sd === 'open') evs = evs.filter(e => !e.done);
+  if (sd === 'done') evs = evs.filter(e => e.done);
   const list = document.getElementById('log-list');
   if (!list) return;
-  if (!evs.length) { list.innerHTML='<div class="empty-state">Keine Treffen gefunden.</div>'; return; }
-  list.innerHTML = evs.map(e=>`<div class="log-entry ${e.done?'done':''} ${e.mode==='romantic'?'romantic':''}">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <div>
-        <div class="log-date">${fmtDate(e.date)}${e.time?' · '+h(e.time):''}</div>
-        <div class="log-activity">${h(e.activityName)}${e.mode==='romantic'?' ♥':''}</div>
-        <div class="log-people">${h(e.people??'–')}</div>
-        ${e.note?`<div class="log-note">${h(e.note)}</div>`:''}
+
+  if (!evs.length) {
+    list.innerHTML = `
+      <div class="empty-state--cta">
+        <div class="empty-state__icon"><i data-lucide="calendar" class="icon icon--xl"></i></div>
+        <div class="empty-state__title">Keine Treffen gefunden</div>
+        <div class="empty-state__desc">Nutze den Kalender, um Treffen einzutragen, oder passe die Filter an.</div>
+        <button class="btn btn-primary" id="empty-add-event-btn">+ Treffen eintragen</button>
+      </div>`;
+    window.lucide?.createIcons();
+    return;
+  }
+
+  list.innerHTML = evs.map(e => {
+    const dayNum   = new Date(e.date).getDate();
+    const monthStr = new Date(e.date).toLocaleDateString('de-DE', { month: 'short' });
+    const isRomantic = e.mode === 'romantic';
+    return `<div class="log-entry ${e.done ? 'done' : ''} ${isRomantic ? 'romantic' : ''}">
+  <div class="log-entry__header">
+    <div class="log-entry__date-col">
+      <span class="log-entry__day">${dayNum}</span>
+      <span class="log-entry__month">${monthStr}</span>
+    </div>
+    <div class="log-entry__body">
+      <div class="log-entry__title">
+        ${h(e.activityName)}${isRomantic ? ' ♥' : ''}${e.time ? `<span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:6px;">${h(e.time)}</span>` : ''}
       </div>
-      ${e.done?'<span class="tag tag-green">✓</span>':'<span class="tag tag-yellow">offen</span>'}
+      <div class="log-entry__people">${h(e.people ?? '–')}</div>
+      ${e.note ? `<div class="log-note">${h(e.note)}</div>` : ''}
     </div>
-    <div class="log-actions">
-      <input type="checkbox" class="check-done" ${e.done?'checked':''} data-action="toggle-done" data-id="${e.id}" data-val="${e.done?'false':'true'}">
-      <span style="font-size:12px;color:var(--muted);">${e.done?'Abgehakt':'Abhaken'}</span>
-      <button class="btn btn-sm btn-danger" style="margin-left:auto;" data-action="delete-event" data-id="${e.id}" data-date="">Entfernen</button>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+      ${e.done ? '<span class="tag tag-green">✓ Erledigt</span>' : '<span class="tag tag-yellow">Offen</span>'}
     </div>
-  </div>`).join('');
+  </div>
+  <div class="log-actions">
+    <input type="checkbox" class="check-done" ${e.done ? 'checked' : ''} data-action="toggle-done" data-id="${e.id}" data-val="${!e.done}">
+    <span style="font-size:12px;color:var(--muted);">${e.done ? 'Abhaken rückgängig' : 'Als erledigt markieren'}</span>
+    <button class="btn btn-sm btn-danger" style="margin-left:auto;" data-action="delete-event" data-id="${e.id}" data-date="">Entfernen</button>
+  </div>
+</div>`;
+  }).join('');
+
+  window.lucide?.createIcons();
 }
 
 async function toggleDone(id, val) {
   const boolVal = val === 'true' || val === true;
   const { data, error } = await Store.updateEvent(id, { done: boolVal });
-  if (error) { showToast('Fehler: '+error.message, 'error'); return; }
+  if (error) { showToast('Fehler: ' + error.message, 'error'); return; }
   const { events } = getState();
-  setState({ events: events.map(e => e.id===id ? data[0] : e) });
+  setState({ events: events.map(e => e.id === id ? data[0] : e) });
 }
 
 // ============================================================
@@ -166,7 +192,7 @@ export function setMode(mode) {
 // ============================================================
 // PUBLIC API
 // ============================================================
-export function render(container, mode='calendar') {
+export function render(container, mode = 'calendar') {
   _container = container;
   _subPage   = mode;
 
@@ -227,7 +253,8 @@ export function render(container, mode='calendar') {
     if (openDayEl) { openCalModal({ date: openDayEl.dataset.date }); return; }
 
     // Add event btn
-    if (target.id === 'add-event-btn') { openCalModal({ date: '' }); return; }
+    if (target.id === 'add-event-btn')       { openCalModal({ date: '' }); return; }
+    if (target.id === 'empty-add-event-btn') { openCalModal({ date: '' }); return; }
 
     // Toggle done handled via change event below
 

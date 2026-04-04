@@ -4,51 +4,144 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sozialplaner</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
 <!-- Loading overlay -->
 <div id="loading-overlay">
   <div class="loading-spinner"></div>
-  <div style="font-size:14px;color:var(--muted);">Daten werden geladen…</div>
+  <div style="font-size:13px;color:var(--muted);">Daten werden geladen…</div>
 </div>
 
 <div id="toast-container"></div>
 
 <!-- Login Screen -->
 <div id="login-screen" style="display:none;">
-  <div class="login-box">
-    <div class="login-title">Sozialplaner</div>
-    <div class="login-sub">Melde dich an, um fortzufahren.</div>
-    <div class="card">
-      <div class="form-row full"><label>E-Mail</label><input id="login-email" type="email" placeholder="name@beispiel.de" autocomplete="email"/></div>
-      <div class="form-row full"><label>Passwort</label><input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-brand__logo">SP</div>
+      <h1 class="login-brand__title">Sozialplaner</h1>
+      <p class="login-brand__sub">Deine Freundschaften organisieren</p>
+    </div>
+    <div class="login-tabs">
+      <button class="login-tab active" id="login-tab-signin">Anmelden</button>
+      <button class="login-tab" id="login-tab-signup">Registrieren</button>
+    </div>
+    <div class="login-form">
+      <div class="form-row full">
+        <label>E-Mail</label>
+        <input id="login-email" type="email" placeholder="name@beispiel.de" autocomplete="email"/>
+      </div>
+      <div class="form-row full">
+        <label>Passwort</label>
+        <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password"/>
+        <div class="login-pw-hint">Mindestens 6 Zeichen</div>
+      </div>
       <div class="login-error" id="login-error"></div>
       <button class="btn btn-primary" id="login-btn" style="width:100%;">Anmelden</button>
+      <button class="login-forgot" id="login-forgot-btn">Passwort vergessen?</button>
     </div>
+  </div>
+</div>
+
+<!-- Onboarding Overlay — shown once after first login -->
+<div id="onboarding-overlay" style="display:none;">
+  <div class="onboarding-card">
+    <div class="onboarding-header">
+      <div class="onboarding-logo">SP</div>
+      <h2>Willkommen!</h2>
+      <p>In 3 Schritten loslegen</p>
+    </div>
+    <div class="onboarding-steps">
+      <div class="onboarding-step">
+        <div class="onboarding-step__num">1</div>
+        <div>
+          <div class="onboarding-step__title">Freunde hinzufügen</div>
+          <div class="onboarding-step__desc">Trage Freunde, Familie und Bekannte mit Wohnort und Verfügbarkeit ein.</div>
+        </div>
+      </div>
+      <div class="onboarding-step">
+        <div class="onboarding-step__num">2</div>
+        <div>
+          <div class="onboarding-step__title">Aktivitäten erstellen</div>
+          <div class="onboarding-step__desc">Sammle Ideen für gemeinsame Unternehmungen — vom Kinobesuch bis zur Wandertour.</div>
+        </div>
+      </div>
+      <div class="onboarding-step">
+        <div class="onboarding-step__num">3</div>
+        <div>
+          <div class="onboarding-step__title">Events planen</div>
+          <div class="onboarding-step__desc">Lass dir Vorschläge generieren oder trage Treffen direkt im Kalender ein.</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="onboarding-done-btn" style="width:100%;">Los geht's →</button>
   </div>
 </div>
 
 <!-- App -->
 <div id="app" style="display:none;">
-  <nav id="main-nav">
-    <div class="app-title">Sozialplaner</div>
-    <button class="active" data-route="#/">Übersicht</button>
-    <button data-route="#/suggest">Vorschlag</button>
-    <button data-route="#/friends">Freunde</button>
-    <button data-route="#/activities">Aktivitäten</button>
-    <button data-route="#/events">Kalender</button>
-    <button data-route="#/log">Verlauf</button>
-    <div class="nav-user">
-      <span class="nav-user-email" id="user-email"></span>
-      <button class="btn btn-sm btn-ghost" id="logout-btn" style="color:var(--danger);">Abmelden</button>
-    </div>
-  </nav>
 
-  <!-- View container — views render here -->
-  <div id="view-container"></div>
+  <!-- Mobile hamburger -->
+  <button class="hamburger" id="hamburger-btn" aria-label="Menü öffnen">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- Sidebar overlay (mobile backdrop) -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__header">
+        <div class="sidebar__title">Sozialplaner</div>
+      </div>
+
+      <nav class="sidebar__nav" id="main-nav">
+        <button class="sidebar__item" data-route="#/">
+          <span class="sidebar__item-icon">⊞</span>
+          Übersicht
+        </button>
+        <button class="sidebar__item" data-route="#/suggest">
+          <span class="sidebar__item-icon">✦</span>
+          Vorschlag
+        </button>
+        <div class="sidebar__section-label">Verwalten</div>
+        <button class="sidebar__item" data-route="#/friends">
+          <span class="sidebar__item-icon">◎</span>
+          Freunde
+        </button>
+        <button class="sidebar__item" data-route="#/activities">
+          <span class="sidebar__item-icon">◈</span>
+          Aktivitäten
+        </button>
+        <div class="sidebar__section-label">Planung</div>
+        <button class="sidebar__item" data-route="#/events">
+          <span class="sidebar__item-icon">▦</span>
+          Kalender
+        </button>
+        <button class="sidebar__item" data-route="#/log">
+          <span class="sidebar__item-icon">≡</span>
+          Verlauf
+        </button>
+      </nav>
+
+      <div class="sidebar__footer">
+        <div class="sidebar__user">
+          <div class="sidebar__user-avatar" id="user-avatar"></div>
+          <span class="sidebar__user-email" id="user-email"></span>
+        </div>
+        <button class="btn btn-sm btn-ghost sidebar__logout" id="logout-btn">Abmelden</button>
+      </div>
+    </aside>
+
+    <!-- Content area -->
+    <main class="content" id="view-container"></main>
+
+  </div>
 
   <!-- MODALS -->
   <div class="modal-bg" id="person-modal">
@@ -56,11 +149,19 @@
       <div class="modal-title" id="person-modal-title">Freund hinzufügen</div>
       <input type="hidden" id="p-id"/>
       <div class="form-row">
-        <div><label>Name *</label><input id="p-name" placeholder="Vorname Nachname" maxlength="100"/></div>
+        <div>
+          <label>Name *</label>
+          <input id="p-name" placeholder="Vorname Nachname" maxlength="100"/>
+          <div class="char-counter" id="counter-p-name"></div>
+        </div>
         <div><label>Geburtstag</label><input id="p-birthday" type="date"/></div>
       </div>
       <div class="form-row">
-        <div><label>Wohnort</label><input id="p-city" placeholder="Stadt" maxlength="100"/></div>
+        <div>
+          <label>Wohnort</label>
+          <input id="p-city" placeholder="Stadt" maxlength="100"/>
+          <div class="char-counter" id="counter-p-city"></div>
+        </div>
         <div><label>Kategorie</label>
           <select id="p-category">
             <option value="friend">Freund</option>
@@ -87,7 +188,11 @@
           <button type="button" class="day-btn" data-day="So">So</button>
         </div>
       </div>
-      <div class="form-row full"><label>Notizen</label><textarea id="p-notes" placeholder="Interessen, Besonderheiten..." maxlength="1000"></textarea></div>
+      <div class="form-row full">
+        <label>Notizen</label>
+        <textarea id="p-notes" placeholder="Interessen, Besonderheiten…" maxlength="2000"></textarea>
+        <div class="char-counter" id="counter-p-notes"></div>
+      </div>
       <div class="modal-actions">
         <button class="btn" data-modal-close="person-modal">Abbrechen</button>
         <button class="btn btn-primary" id="person-save-btn">Speichern</button>
@@ -100,7 +205,11 @@
       <div class="modal-title" id="activity-modal-title">Aktivität hinzufügen</div>
       <input type="hidden" id="a-id"/>
       <div class="form-row">
-        <div><label>Name *</label><input id="a-name" placeholder="z.B. Klettern gehen" maxlength="100"/></div>
+        <div>
+          <label>Name *</label>
+          <input id="a-name" placeholder="z.B. Klettern gehen" maxlength="100"/>
+          <div class="char-counter" id="counter-a-name"></div>
+        </div>
         <div><label>Ort</label><input id="a-location" placeholder="z.B. Kletterhalle Berlin" maxlength="200"/></div>
       </div>
       <div class="form-row">
@@ -142,11 +251,11 @@
         <div id="ce-people" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;"></div>
       </div>
       <div class="form-row full"><label>Notiz</label><textarea id="ce-note" placeholder="Was war besonders?" maxlength="1000"></textarea></div>
-      <div id="gcal-status" style="display:none;font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:8px;"></div>
+      <div id="gcal-status" style="display:none;font-size:13px;padding:8px 12px;border-radius:6px;margin-bottom:8px;"></div>
       <div class="modal-actions">
         <button class="btn" data-modal-close="cal-modal">Abbrechen</button>
-        <button class="btn" id="cal-ics-btn">📅 ICS</button>
-        <button class="btn" id="cal-gcal-btn" style="background:#4285f4;color:#fff;border-color:#4285f4;">G Google Cal</button>
+        <button class="btn" id="cal-ics-btn">ICS</button>
+        <button class="btn" id="cal-gcal-btn" style="background:#4285f4;color:#fff;border-color:#4285f4;">Google Cal</button>
         <button class="btn btn-primary" id="cal-save-btn">Speichern</button>
       </div>
     </div>
@@ -167,6 +276,7 @@
       <div class="modal-actions"><button class="btn btn-primary" data-modal-close="history-modal">Schließen</button></div>
     </div>
   </div>
+
 </div>
 
 <script type="module" src="js/app.js"></script>
