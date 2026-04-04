@@ -26,161 +26,29 @@
       <div class="form-row full"><label>E-Mail</label><input id="login-email" type="email" placeholder="name@beispiel.de" autocomplete="email"/></div>
       <div class="form-row full"><label>Passwort</label><input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
       <div class="login-error" id="login-error"></div>
-      <button class="btn btn-primary" id="login-btn" onclick="handleLogin()" style="width:100%;">Anmelden</button>
+      <button class="btn btn-primary" id="login-btn" style="width:100%;">Anmelden</button>
     </div>
   </div>
 </div>
 
 <!-- App -->
 <div id="app" style="display:none;">
-  <nav>
+  <nav id="main-nav">
     <div class="app-title">Sozialplaner</div>
-    <button class="active" onclick="switchPage('home',this)">Übersicht</button>
-    <button onclick="switchPage('suggest',this)">Vorschlag</button>
-    <button onclick="switchPage('friends',this)">Freunde</button>
-    <button onclick="switchPage('activities',this)">Aktivitäten</button>
-    <button onclick="switchPage('calendar',this)">Kalender</button>
-    <button onclick="switchPage('log',this)">Verlauf</button>
+    <button class="active" data-route="#/">Übersicht</button>
+    <button data-route="#/suggest">Vorschlag</button>
+    <button data-route="#/friends">Freunde</button>
+    <button data-route="#/activities">Aktivitäten</button>
+    <button data-route="#/events">Kalender</button>
+    <button data-route="#/log">Verlauf</button>
     <div class="nav-user">
       <span class="nav-user-email" id="user-email"></span>
-      <button class="btn btn-sm btn-ghost" onclick="handleLogout()" style="color:var(--danger);">Abmelden</button>
+      <button class="btn btn-sm btn-ghost" id="logout-btn" style="color:var(--danger);">Abmelden</button>
     </div>
   </nav>
 
-  <!-- HOME -->
-  <div id="page-home" class="page active">
-    <div style="padding-top:8px;">
-      <div class="dash-section">
-        <div class="dash-title"><span style="width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block;"></span>Lange nicht gesehen</div>
-        <div id="overdue-list" class="overdue-list"></div>
-      </div>
-      <div class="dash-section">
-        <div class="dash-title"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;"></span>Nächste Geburtstage (60 Tage)</div>
-        <div id="bday-list" class="overdue-list"></div>
-      </div>
-      <div class="dash-section">
-        <div class="dash-title"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent2);display:inline-block;"></span>Letzte Treffen</div>
-        <div id="recent-list" class="overdue-list"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SUGGEST -->
-  <div id="page-suggest" class="page">
-    <div class="suggest-hero">
-      <h2>Was machen wir heute?</h2>
-      <p>Gib ein Datum ein und lass dich überraschen.</p>
-    </div>
-    <div class="mode-toggle">
-      <button class="mode-btn active-social" id="mode-social" onclick="setMode('social')">Freunde</button>
-      <button class="mode-btn" id="mode-romantic" onclick="setMode('romantic')">Romantisch</button>
-    </div>
-    <div class="suggest-controls">
-      <div><label>Datum</label><input type="date" id="s-date"/></div>
-      <div><label>Energie</label><select id="s-energy"><option value="">Egal</option><option value="low">Entspannt</option><option value="medium">Aktiv</option><option value="high">Aufwändig</option></select></div>
-      <div><label>Budget (max €)</label><input type="number" id="s-budget" placeholder="z.B. 50" style="max-width:120px;"/></div>
-      <div style="display:flex;flex-direction:column;justify-content:flex-end;">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:var(--text);">
-          <input type="checkbox" id="s-prioritize" style="width:auto;accent-color:var(--accent);" checked>
-          Lange nicht gesehen priorisieren
-        </label>
-      </div>
-    </div>
-    <div style="text-align:center;">
-      <button class="btn btn-primary" id="suggest-btn" onclick="generateSuggestion()">Vorschlag generieren</button>
-    </div>
-    <div id="suggest-result" style="display:none;" class="result-box">
-      <div id="res-activity" class="result-activity"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-        <div>
-          <div class="info-row"><span class="info-label">Ort</span><span id="res-location"></span></div>
-          <div class="info-row"><span class="info-label">Budget</span><span id="res-budget"></span></div>
-          <div class="info-row"><span class="info-label">Personen</span><span id="res-persons"></span></div>
-          <div class="info-row"><span class="info-label">Energie</span><span id="res-energy-lbl"></span></div>
-          <div class="info-row"><span class="info-label">Uhrzeit</span><input type="time" id="res-time" value="12:00" style="max-width:100px;padding:4px 8px;font-size:13px;"/></div>
-        </div>
-        <div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:500;letter-spacing:.03em;text-transform:uppercase;">Todos</div>
-          <div id="res-todos" style="font-size:13px;line-height:1.8;"></div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div style="font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.03em;text-transform:uppercase;">Einzuladen <span style="font-weight:400;font-size:11px;">— klicken zum Tauschen</span></div>
-        <button class="btn btn-ghost btn-sm" onclick="generateSuggestion()">↺ Neu würfeln</button>
-      </div>
-      <div id="res-people" class="result-people"></div>
-      <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
-        <button class="btn btn-sm btn-primary" onclick="saveToCalendar()">In Kalender eintragen</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- FRIENDS -->
-  <div id="page-friends" class="page">
-    <div class="section-header">
-      <div><div class="section-title">Freunde</div><div class="section-sub">Alle Kontakte.</div></div>
-      <button class="btn btn-primary" onclick="openPersonModal()">+ Hinzufügen</button>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-      <select id="friend-filter-category" onchange="renderFriends()" style="max-width:180px;">
-        <option value="">Alle Kategorien</option>
-        <option value="friend">Freunde</option>
-        <option value="romantic">Romantisch</option>
-        <option value="family">Familie</option>
-        <option value="work">Arbeit</option>
-      </select>
-    </div>
-    <div id="friends-grid" class="card-grid"></div>
-  </div>
-
-  <!-- ACTIVITIES -->
-  <div id="page-activities" class="page">
-    <div class="section-header">
-      <div><div class="section-title">Aktivitäten</div><div class="section-sub">Ideen für gemeinsame Unternehmungen.</div></div>
-      <button class="btn btn-primary" onclick="openActivityModal()">+ Hinzufügen</button>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:16px;">
-      <select id="activity-filter-mode" onchange="renderActivities()" style="max-width:180px;">
-        <option value="">Alle Modi</option>
-        <option value="social">Freunde</option>
-        <option value="romantic">Romantisch</option>
-        <option value="both">Beides</option>
-      </select>
-    </div>
-    <div id="activities-grid" class="card-grid"></div>
-  </div>
-
-  <!-- CALENDAR -->
-  <div id="page-calendar" class="page">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <button class="btn btn-sm" onclick="calPrev()">← Zurück</button>
-      <div class="section-title" id="cal-month-title"></div>
-      <button class="btn btn-sm" onclick="calNext()">Weiter →</button>
-    </div>
-    <div class="card">
-      <div class="cal-grid">
-        <div class="cal-day-name">Mo</div><div class="cal-day-name">Di</div><div class="cal-day-name">Mi</div>
-        <div class="cal-day-name">Do</div><div class="cal-day-name">Fr</div><div class="cal-day-name">Sa</div><div class="cal-day-name">So</div>
-      </div>
-      <div class="cal-grid" id="cal-grid" style="margin-top:6px;"></div>
-    </div>
-    <div id="day-detail" style="display:none;margin-top:16px;" class="card"><div id="day-detail-content"></div></div>
-  </div>
-
-  <!-- LOG -->
-  <div id="page-log" class="page">
-    <div class="section-header">
-      <div><div class="section-title">Verlauf</div><div class="section-sub">Alle Treffen.</div></div>
-      <button class="btn btn-primary" onclick="openCalModalForDate('')">+ Treffen eintragen</button>
-    </div>
-    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-      <select id="log-filter-person" onchange="renderLog()" style="max-width:180px;"><option value="">Alle Personen</option></select>
-      <select id="log-filter-activity" onchange="renderLog()" style="max-width:180px;"><option value="">Alle Aktivitäten</option></select>
-      <select id="log-filter-mode" onchange="renderLog()" style="max-width:160px;"><option value="">Alle Modi</option><option value="social">Freunde</option><option value="romantic">Romantisch</option></select>
-      <select id="log-filter-done" onchange="renderLog()" style="max-width:160px;"><option value="">Alle Status</option><option value="open">Offen</option><option value="done">Abgehakt</option></select>
-    </div>
-    <div id="log-list"></div>
-  </div>
+  <!-- View container — views render here -->
+  <div id="view-container"></div>
 
   <!-- MODALS -->
   <div class="modal-bg" id="person-modal">
@@ -221,8 +89,8 @@
       </div>
       <div class="form-row full"><label>Notizen</label><textarea id="p-notes" placeholder="Interessen, Besonderheiten..." maxlength="1000"></textarea></div>
       <div class="modal-actions">
-        <button class="btn" onclick="closeModal('person-modal')">Abbrechen</button>
-        <button class="btn btn-primary" id="person-save-btn" onclick="savePerson()">Speichern</button>
+        <button class="btn" data-modal-close="person-modal">Abbrechen</button>
+        <button class="btn btn-primary" id="person-save-btn">Speichern</button>
       </div>
     </div>
   </div>
@@ -255,8 +123,8 @@
       <div class="form-row full"><label>Tags (kommagetrennt)</label><input id="a-tags" placeholder="Sport, Sommer, Gruppe" maxlength="300"/></div>
       <div class="form-row full"><label>Todos / Ressourcen</label><textarea id="a-todos" placeholder="Was wird benötigt?" maxlength="1000"></textarea></div>
       <div class="modal-actions">
-        <button class="btn" onclick="closeModal('activity-modal')">Abbrechen</button>
-        <button class="btn btn-primary" id="activity-save-btn" onclick="saveActivity()">Speichern</button>
+        <button class="btn" data-modal-close="activity-modal">Abbrechen</button>
+        <button class="btn btn-primary" id="activity-save-btn">Speichern</button>
       </div>
     </div>
   </div>
@@ -276,10 +144,10 @@
       <div class="form-row full"><label>Notiz</label><textarea id="ce-note" placeholder="Was war besonders?" maxlength="1000"></textarea></div>
       <div id="gcal-status" style="display:none;font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:8px;"></div>
       <div class="modal-actions">
-        <button class="btn" onclick="closeModal('cal-modal')">Abbrechen</button>
-        <button class="btn" onclick="exportICS()">📅 ICS</button>
-        <button class="btn" id="gcal-btn" onclick="saveToGoogleCal()" style="background:#4285f4;color:#fff;border-color:#4285f4;">G Google Cal</button>
-        <button class="btn btn-primary" id="cal-save-btn" onclick="saveCalEvent()">Speichern</button>
+        <button class="btn" data-modal-close="cal-modal">Abbrechen</button>
+        <button class="btn" id="cal-ics-btn">📅 ICS</button>
+        <button class="btn" id="cal-gcal-btn" style="background:#4285f4;color:#fff;border-color:#4285f4;">G Google Cal</button>
+        <button class="btn btn-primary" id="cal-save-btn">Speichern</button>
       </div>
     </div>
   </div>
@@ -288,7 +156,7 @@
     <div class="modal">
       <div class="modal-title">Person tauschen</div>
       <div id="swap-list" style="display:flex;flex-direction:column;gap:8px;"></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal('swap-modal')">Abbrechen</button></div>
+      <div class="modal-actions"><button class="btn" data-modal-close="swap-modal">Abbrechen</button></div>
     </div>
   </div>
 
@@ -296,7 +164,7 @@
     <div class="modal">
       <div class="modal-title" id="history-modal-title">Verlauf</div>
       <div id="history-content"></div>
-      <div class="modal-actions"><button class="btn btn-primary" onclick="closeModal('history-modal')">Schließen</button></div>
+      <div class="modal-actions"><button class="btn btn-primary" data-modal-close="history-modal">Schließen</button></div>
     </div>
   </div>
 </div>
