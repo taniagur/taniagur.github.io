@@ -1,12 +1,15 @@
 import { getState, setState, subscribe } from '../state.js';
 import * as Store from '../store/index.js';
 import { showToast } from '../ui/feedback.js';
-import { h, ini, avc, dSince, fmtDate, catlab, scoreFriend } from '../ui/helpers.js';
+import { h, ini, avc, dSince, fmtDate, catlab, scoreFriend, sanitize, initCharCounter } from '../ui/helpers.js';
 
-let _container    = null;
-let _unsubscribe  = null;
-let _delegHandler = null;
-let _saveHandler  = null;
+const LIMITS = { name: 100, city: 100, notes: 2000 };
+
+let _container         = null;
+let _unsubscribe       = null;
+let _delegHandler      = null;
+let _saveHandler       = null;
+let _counterCleanups   = [];
 
 // ============================================================
 // RENDER GRID
@@ -45,7 +48,7 @@ function renderFriendGrid() {
       <div style="margin:6px 0;"><div class="score-bar"><div class="score-fill" style="width:${score}%"></div></div></div>
       <div style="margin:6px 0;">${dayTags}</div>
       <span class="badge ${pcls}">${plbl}</span>
-      ${f.notes?`<div style="margin-top:10px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px;">${h(f.notes)}</div>`:''}
+      ${f.notes?`<div style="margin-top:10px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px;white-space:pre-line;">${h(f.notes)}</div>`:''}
       <div class="person-actions">
         <button class="btn btn-sm" data-action="edit" data-id="${f.id}">Bearbeiten</button>
         <button class="btn btn-sm" data-action="history" data-id="${f.id}">Verlauf</button>

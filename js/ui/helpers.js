@@ -1,7 +1,35 @@
-// XSS prevention
+// XSS prevention — escapes HTML entities for use inside innerHTML template literals
 export const h = str => String(str ?? '')
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+// Sanitize user input before storage — strips dangerous patterns, enforces length
+export function sanitize(str, maxLen = Infinity) {
+  if (str == null) return '';
+  return String(str)
+    .slice(0, maxLen)
+    .replace(/\0/g, '')              // null bytes
+    .replace(/javascript\s*:/gi, '') // JS protocol injection
+    .replace(/data\s*:/gi, '')       // data: URI injection
+    .normalize('NFC');               // normalize unicode
+}
+
+// Attach a live character counter to an input/textarea.
+// Returns a cleanup function that removes the listener.
+export function initCharCounter(inputId, counterId, maxLen) {
+  const input   = document.getElementById(inputId);
+  const counter = document.getElementById(counterId);
+  if (!input || !counter) return () => {};
+  function update() {
+    const len = input.value.length;
+    counter.textContent = `${len} / ${maxLen}`;
+    counter.classList.toggle('char-counter--warn', len >= Math.floor(maxLen * 0.85));
+    counter.classList.toggle('char-counter--over',  len >= maxLen);
+  }
+  input.addEventListener('input', update);
+  update();
+  return () => input.removeEventListener('input', update);
+}
 
 export const AV_COLS = ['av-0','av-1','av-2','av-3','av-4'];
 export const ini     = name => name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
