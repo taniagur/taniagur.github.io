@@ -15,16 +15,16 @@
   --border-2:  #D4D4D4;
 
   --text:      #1A1A1A;
-  --muted:     #787878;
+  --muted:     #737373;   /* darkened: 5.0:1 on white, 4.7:1 on --bg-2 */
   --muted-2:   #ADADAD;
 
-  --accent:    #2383E2;
-  --accent-bg: rgba(35, 131, 226, 0.08);
-  --accent-hover: #1A6DC5;
+  --accent:       #4F46E5;
+  --accent-bg:    rgba(79, 70, 229, 0.08);
+  --accent-hover: #4338CA;
 
   --danger:    #E03E3E;
   --danger-bg: rgba(224, 62, 62, 0.08);
-  --warn:      #DFAB01;
+  --warn:      #7A5800;   /* darkened for text: ~6.3:1 on white */
   --warn-bg:   rgba(223, 171, 1, 0.10);
 
   --green:     #0F7B6C;
@@ -76,9 +76,9 @@
     --muted:     #979593;
     --muted-2:   #6B6B6B;
 
-    --accent:    #529CCA;
-    --accent-bg: rgba(82, 156, 202, 0.12);
-    --accent-hover: #3E87B8;
+    --accent:       #818CF8;
+    --accent-bg:    rgba(129, 140, 248, 0.12);
+    --accent-hover: #6366F1;
 
     --danger:    #FF5555;
     --danger-bg: rgba(255, 85, 85, 0.12);
@@ -114,6 +114,25 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ------------------------------------------------------------
+   2b. FOCUS STYLES — visible ring for keyboard navigation
+   ------------------------------------------------------------ */
+
+/* Global ring: shown only for keyboard navigation (not mouse clicks) */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Inputs use an inset box-shadow ring to follow border-radius;
+   suppress the outline so both don't show at once */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
 }
 
 /* ------------------------------------------------------------
@@ -185,7 +204,7 @@ body {
 .sidebar__section-label {
   font-size: 11px;
   font-weight: 600;
-  color: var(--muted-2);
+  color: var(--muted);   /* was --muted-2: #ADADAD (~1.9:1), now ~4.7:1 on --bg-2 */
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: var(--sp-3) var(--sp-2) var(--sp-1);
@@ -347,6 +366,14 @@ body {
   .sidebar.open { transform: translateX(0); }
 
   .content { padding-top: var(--sp-7); }
+}
+
+/* Sidebar nav items: larger touch targets on mobile */
+@media (max-width: 768px) {
+  .sidebar__item {
+    min-height: 44px;
+    padding: var(--sp-2) var(--sp-2);
+  }
 }
 
 /* ------------------------------------------------------------
@@ -1117,13 +1144,13 @@ select { cursor: pointer; }
 }
 .login-tab:hover:not(.active) {
   color: var(--text);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--bg-3);
 }
 .login-tab.active {
-  background: var(--surface);
-  color: var(--text);
+  background: var(--accent);
+  color: #fff;
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 /* Form */
@@ -1161,6 +1188,12 @@ select { cursor: pointer; }
   line-height: 1.4;
 }
 
+/* Primary submit button inside login */
+#login-btn {
+  width: 100%;
+  height: 40px;
+}
+
 .login-forgot {
   background: none;
   border: none;
@@ -1169,7 +1202,7 @@ select { cursor: pointer; }
   color: var(--muted);
   cursor: pointer;
   text-align: center;
-  padding: var(--sp-1) 0;
+  padding: var(--sp-2) 0 0;
   transition: color 0.15s;
   width: 100%;
   display: block;
@@ -1705,4 +1738,127 @@ select { cursor: pointer; }
   gap: var(--sp-1);
   min-width: 120px;
   flex: 1;
+}
+
+/* ============================================================
+   31. RESPONSIVE — comprehensive mobile (≤ 768px / iPhone SE)
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* --- iOS auto-zoom prevention: minimum 16px on all inputs --- */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  /* Login form inputs also need the override (they have a local font-size) */
+  .login-form input {
+    font-size: 16px;
+  }
+
+  /* --- Touch targets: 44 × 44 px minimum --- */
+  .btn {
+    min-height: 44px;
+    padding-top: var(--sp-2);
+    padding-bottom: var(--sp-2);
+  }
+  .btn-sm {
+    min-height: 44px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  /* Hamburger button */
+  .hamburger {
+    width: 44px;
+    height: 44px;
+  }
+  /* Day-of-week picker buttons */
+  .day-btn {
+    min-height: 44px;
+    padding-left: var(--sp-2);
+    padding-right: var(--sp-2);
+  }
+  /* Login tabs */
+  .login-tab {
+    min-height: 44px;
+  }
+
+  /* --- Login card: reduce padding on narrow screens --- */
+  .login-card {
+    padding: var(--sp-4); /* 16px instead of 32px */
+    border-radius: var(--radius);
+  }
+
+  /* --- Form rows: stack to single column --- */
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* --- Card grids: single column --- */
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* --- Section header: wrap so CTA button doesn't overflow --- */
+  .section-header {
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+
+  /* --- Suggest form controls: stack vertically --- */
+  .suggest-form__row {
+    flex-direction: column;
+  }
+  .suggest-form__row > div {
+    min-width: 0;
+  }
+
+  /* --- Modal: tighter edge padding --- */
+  .modal-bg {
+    padding: var(--sp-3);
+  }
+  .modal {
+    padding: var(--sp-4);
+  }
+
+  /* --- Modal actions: full-width buttons on very small screens --- */
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+  .modal-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* --- Calendar: smaller cells to fit 7 columns at 375 px --- */
+  .cal-day {
+    min-height: 40px;
+    padding: 2px;
+  }
+  .cal-day .day-num {
+    font-size: var(--text-xs);
+    margin-bottom: 1px;
+  }
+}
+
+/* Extra-narrow: log-entry date column tighter */
+@media (max-width: 480px) {
+  .log-entry__date-col {
+    min-width: 36px;
+  }
+  .log-entry__day {
+    font-size: 16px;
+  }
+}
+
+/* ============================================================
+   32. REDUCED MOTION — respect user's motion preference
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+    scroll-behavior:           auto   !important;
+  }
 }

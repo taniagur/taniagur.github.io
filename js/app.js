@@ -84,6 +84,7 @@ function openSidebar() {
   sidebarOverlay.classList.add('open');
   hamburgerBtn.classList.add('open');
   hamburgerBtn.setAttribute('aria-label', 'Menü schließen');
+  hamburgerBtn.setAttribute('aria-expanded', 'true');
 }
 
 function closeSidebar() {
@@ -91,6 +92,7 @@ function closeSidebar() {
   sidebarOverlay.classList.remove('open');
   hamburgerBtn.classList.remove('open');
   hamburgerBtn.setAttribute('aria-label', 'Menü öffnen');
+  hamburgerBtn.setAttribute('aria-expanded', 'false');
 }
 
 hamburgerBtn.addEventListener('click', () => {
@@ -122,11 +124,57 @@ document.addEventListener('click', e => {
   }
 });
 
-// Escape key closes all open modals (and sidebar on mobile)
+// ============================================================
+// FOCUS TRAP & MODAL FOCUS MANAGEMENT
+// ============================================================
+const FOCUSABLE = [
+  'button:not([disabled])',
+  '[href]',
+  'input:not([type="hidden"]):not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ');
+
+let _modalOpener = null;
+
+// Watch for .modal-bg gaining/losing .open — manage focus accordingly
+const _modalObserver = new MutationObserver(mutations => {
+  for (const { target, oldValue } of mutations) {
+    const wasOpen = (oldValue ?? '').split(' ').includes('open');
+    const isOpen  = target.classList.contains('open');
+    if (!wasOpen && isOpen) {
+      _modalOpener = document.activeElement;
+      const first = target.querySelector(FOCUSABLE);
+      if (first) setTimeout(() => first.focus(), 0);
+    } else if (wasOpen && !isOpen) {
+      if (_modalOpener) { _modalOpener.focus(); _modalOpener = null; }
+    }
+  }
+});
+document.querySelectorAll('.modal-bg').forEach(m =>
+  _modalObserver.observe(m, { attributes: true, attributeOldValue: true, attributeFilter: ['class'] })
+);
+
+// Escape closes modals/sidebar; Tab is trapped inside open modals
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.modal-bg.open').forEach(m => m.classList.remove('open'));
     closeSidebar();
+    return;
+  }
+  if (e.key === 'Tab') {
+    const openModal = document.querySelector('.modal-bg.open');
+    if (!openModal) return;
+    const focusable = [...openModal.querySelectorAll(FOCUSABLE)];
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last  = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
+    }
   }
 });
 

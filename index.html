@@ -31,15 +31,15 @@
     </div>
     <div class="login-form">
       <div class="form-row full">
-        <label>E-Mail</label>
+        <label for="login-email">E-Mail</label>
         <input id="login-email" type="email" placeholder="name@beispiel.de" autocomplete="email"/>
       </div>
       <div class="form-row full">
-        <label>Passwort</label>
+        <label for="login-password">Passwort</label>
         <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password"/>
-        <div class="login-pw-hint">Mindestens 6 Zeichen</div>
+        <div class="login-pw-hint" id="login-pw-hint">Mindestens 6 Zeichen</div>
       </div>
-      <div class="login-error" id="login-error"></div>
+      <div class="login-error" id="login-error" role="alert" aria-live="polite"></div>
       <button class="btn btn-primary" id="login-btn" style="width:100%;">Anmelden</button>
       <button class="login-forgot" id="login-forgot-btn">Passwort vergessen?</button>
     </div>
@@ -47,11 +47,11 @@
 </div>
 
 <!-- Onboarding Overlay — shown once after first login -->
-<div id="onboarding-overlay" style="display:none;">
+<div id="onboarding-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
   <div class="onboarding-card">
     <div class="onboarding-header">
       <div class="onboarding-logo">SP</div>
-      <h2>Willkommen!</h2>
+      <h2 id="onboarding-title">Willkommen!</h2>
       <p>In 3 Schritten loslegen</p>
     </div>
     <div class="onboarding-steps">
@@ -85,7 +85,7 @@
 <div id="app" style="display:none;">
 
   <!-- Mobile hamburger -->
-  <button class="hamburger" id="hamburger-btn" aria-label="Menü öffnen">
+  <button class="hamburger" id="hamburger-btn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="sidebar">
     <span></span><span></span><span></span>
   </button>
 
@@ -100,7 +100,7 @@
         <div class="sidebar__title">Sozialplaner</div>
       </div>
 
-      <nav class="sidebar__nav" id="main-nav">
+      <nav class="sidebar__nav" id="main-nav" aria-label="Hauptnavigation">
         <button class="sidebar__item" data-route="#/">
           <span class="sidebar__item-icon">⊞</span>
           Übersicht
@@ -144,25 +144,25 @@
   </div>
 
   <!-- MODALS -->
-  <div class="modal-bg" id="person-modal">
+  <div class="modal-bg" id="person-modal" role="dialog" aria-modal="true" aria-labelledby="person-modal-title">
     <div class="modal">
       <div class="modal-title" id="person-modal-title">Freund hinzufügen</div>
       <input type="hidden" id="p-id"/>
       <div class="form-row">
         <div>
-          <label>Name *</label>
+          <label for="p-name">Name *</label>
           <input id="p-name" placeholder="Vorname Nachname" maxlength="100"/>
           <div class="char-counter" id="counter-p-name"></div>
         </div>
-        <div><label>Geburtstag</label><input id="p-birthday" type="date"/></div>
+        <div><label for="p-birthday">Geburtstag</label><input id="p-birthday" type="date"/></div>
       </div>
       <div class="form-row">
         <div>
-          <label>Wohnort</label>
+          <label for="p-city">Wohnort</label>
           <input id="p-city" placeholder="Stadt" maxlength="100"/>
           <div class="char-counter" id="counter-p-city"></div>
         </div>
-        <div><label>Kategorie</label>
+        <div><label for="p-category">Kategorie</label>
           <select id="p-category">
             <option value="friend">Freund</option>
             <option value="romantic">Romantisch</option>
@@ -172,13 +172,13 @@
         </div>
       </div>
       <div class="form-row">
-        <div><label>Einladen mit</label>
+        <div><label for="p-partner">Einladen mit</label>
           <select id="p-partner"><option value="solo">Alleine</option><option value="partner">Mit Partner</option><option value="either">Flexibel</option></select>
         </div>
       </div>
       <div class="form-row full" style="margin-bottom:10px;">
-        <label>Bevorzugte Wochentage</label>
-        <div class="days-toggle" id="p-days">
+        <label id="p-days-label">Bevorzugte Wochentage</label>
+        <div class="days-toggle" id="p-days" role="group" aria-labelledby="p-days-label">
           <button type="button" class="day-btn" data-day="Mo">Mo</button>
           <button type="button" class="day-btn" data-day="Di">Di</button>
           <button type="button" class="day-btn" data-day="Mi">Mi</button>
@@ -189,7 +189,7 @@
         </div>
       </div>
       <div class="form-row full">
-        <label>Notizen</label>
+        <label for="p-notes">Notizen</label>
         <textarea id="p-notes" placeholder="Interessen, Besonderheiten…" maxlength="2000"></textarea>
         <div class="char-counter" id="counter-p-notes"></div>
       </div>
@@ -200,37 +200,37 @@
     </div>
   </div>
 
-  <div class="modal-bg" id="activity-modal">
+  <div class="modal-bg" id="activity-modal" role="dialog" aria-modal="true" aria-labelledby="activity-modal-title">
     <div class="modal">
       <div class="modal-title" id="activity-modal-title">Aktivität hinzufügen</div>
       <input type="hidden" id="a-id"/>
       <div class="form-row">
         <div>
-          <label>Name *</label>
+          <label for="a-name">Name *</label>
           <input id="a-name" placeholder="z.B. Klettern gehen" maxlength="100"/>
           <div class="char-counter" id="counter-a-name"></div>
         </div>
-        <div><label>Ort</label><input id="a-location" placeholder="z.B. Kletterhalle Berlin" maxlength="200"/></div>
+        <div><label for="a-location">Ort</label><input id="a-location" placeholder="z.B. Kletterhalle Berlin" maxlength="200"/></div>
       </div>
       <div class="form-row">
-        <div><label>Budget/Person (€)</label><input id="a-budget" type="number" placeholder="20" min="0" max="10000"/></div>
-        <div><label>Energie</label><select id="a-energy"><option value="low">Entspannt</option><option value="medium">Aktiv</option><option value="high">Aufwändig</option></select></div>
+        <div><label for="a-budget">Budget/Person (€)</label><input id="a-budget" type="number" placeholder="20" min="0" max="10000"/></div>
+        <div><label for="a-energy">Energie</label><select id="a-energy"><option value="low">Entspannt</option><option value="medium">Aktiv</option><option value="high">Aufwändig</option></select></div>
       </div>
       <div class="form-row">
-        <div><label>Min. Personen</label><input id="a-min" type="number" placeholder="2" min="1" max="100"/></div>
-        <div><label>Max. Personen</label><input id="a-max" type="number" placeholder="6" min="1" max="100"/></div>
+        <div><label for="a-min">Min. Personen</label><input id="a-min" type="number" placeholder="2" min="1" max="100"/></div>
+        <div><label for="a-max">Max. Personen</label><input id="a-max" type="number" placeholder="6" min="1" max="100"/></div>
       </div>
       <div class="form-row">
-        <div><label>Dauer (h)</label><input id="a-duration" type="number" placeholder="2" step="0.5" min="0" max="48"/></div>
-        <div><label>Modus</label>
+        <div><label for="a-duration">Dauer (h)</label><input id="a-duration" type="number" placeholder="2" step="0.5" min="0" max="48"/></div>
+        <div><label for="a-mode">Modus</label>
           <select id="a-mode"><option value="social">Freunde</option><option value="romantic">Romantisch</option><option value="both">Beides</option></select>
         </div>
       </div>
       <div class="form-row">
-        <div><label>Indoor/Outdoor</label><select id="a-inout"><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option><option value="both">Beides</option></select></div>
+        <div><label for="a-inout">Indoor/Outdoor</label><select id="a-inout"><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option><option value="both">Beides</option></select></div>
       </div>
-      <div class="form-row full"><label>Tags (kommagetrennt)</label><input id="a-tags" placeholder="Sport, Sommer, Gruppe" maxlength="300"/></div>
-      <div class="form-row full"><label>Todos / Ressourcen</label><textarea id="a-todos" placeholder="Was wird benötigt?" maxlength="1000"></textarea></div>
+      <div class="form-row full"><label for="a-tags">Tags (kommagetrennt)</label><input id="a-tags" placeholder="Sport, Sommer, Gruppe" maxlength="300"/></div>
+      <div class="form-row full"><label for="a-todos">Todos / Ressourcen</label><textarea id="a-todos" placeholder="Was wird benötigt?" maxlength="1000"></textarea></div>
       <div class="modal-actions">
         <button class="btn" data-modal-close="activity-modal">Abbrechen</button>
         <button class="btn btn-primary" id="activity-save-btn">Speichern</button>
@@ -238,19 +238,19 @@
     </div>
   </div>
 
-  <div class="modal-bg" id="cal-modal">
+  <div class="modal-bg" id="cal-modal" role="dialog" aria-modal="true" aria-labelledby="cal-modal-title">
     <div class="modal">
-      <div class="modal-title">Treffen eintragen</div>
+      <div class="modal-title" id="cal-modal-title">Treffen eintragen</div>
       <div class="form-row">
-        <div><label>Datum</label><input id="ce-date" type="date"/></div>
-        <div><label>Uhrzeit</label><input id="ce-time" type="time" value="12:00"/></div>
+        <div><label for="ce-date">Datum</label><input id="ce-date" type="date"/></div>
+        <div><label for="ce-time">Uhrzeit</label><input id="ce-time" type="time" value="12:00"/></div>
       </div>
-      <div class="form-row full"><label>Aktivität</label><select id="ce-activity"></select></div>
+      <div class="form-row full"><label for="ce-activity">Aktivität</label><select id="ce-activity"></select></div>
       <div class="form-row full">
         <label>Teilnehmer</label>
         <div id="ce-people" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;"></div>
       </div>
-      <div class="form-row full"><label>Notiz</label><textarea id="ce-note" placeholder="Was war besonders?" maxlength="1000"></textarea></div>
+      <div class="form-row full"><label for="ce-note">Notiz</label><textarea id="ce-note" placeholder="Was war besonders?" maxlength="1000"></textarea></div>
       <div id="gcal-status" style="display:none;font-size:13px;padding:8px 12px;border-radius:6px;margin-bottom:8px;"></div>
       <div class="modal-actions">
         <button class="btn" data-modal-close="cal-modal">Abbrechen</button>
@@ -261,15 +261,15 @@
     </div>
   </div>
 
-  <div class="modal-bg" id="swap-modal">
+  <div class="modal-bg" id="swap-modal" role="dialog" aria-modal="true" aria-labelledby="swap-modal-title">
     <div class="modal">
-      <div class="modal-title">Person tauschen</div>
+      <div class="modal-title" id="swap-modal-title">Person tauschen</div>
       <div id="swap-list" style="display:flex;flex-direction:column;gap:8px;"></div>
       <div class="modal-actions"><button class="btn" data-modal-close="swap-modal">Abbrechen</button></div>
     </div>
   </div>
 
-  <div class="modal-bg" id="history-modal">
+  <div class="modal-bg" id="history-modal" role="dialog" aria-modal="true" aria-labelledby="history-modal-title">
     <div class="modal">
       <div class="modal-title" id="history-modal-title">Verlauf</div>
       <div id="history-content"></div>
