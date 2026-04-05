@@ -40,13 +40,13 @@ function renderActivityGrid() {
   const energyBg    = { low: 'activity-row__icon--green', medium: 'activity-row__icon--blue', high: 'activity-row__icon--orange' };
 
   grid.innerHTML = `<div class="activity-list">${list.map(a => {
-    const uc         = events.filter(e => e.activityId === a.id).length;
+    const uc         = events.filter(e => e.activity_id === a.id).length;
     const isRomantic = a.mode === 'romantic';
     const emoji      = energyEmoji[a.energy] ?? '⚡';
     const eColor     = energyColor[a.energy] ?? 'tag-blue';
     const eBg        = energyBg[a.energy]    ?? 'activity-row__icon--blue';
 
-    return `<div class="activity-row">
+    return `<div class="activity-row" data-action="toggle-detail" data-id="${a.id}">
   <div class="activity-row__icon ${eBg}">${emoji}</div>
   <div class="activity-row__name">${h(a.name)}${isRomantic ? '<span class="tag tag-pink" style="margin-left:6px;font-size:10px;">♥</span>' : ''}</div>
   <div class="activity-row__meta">
@@ -57,6 +57,17 @@ function renderActivityGrid() {
   <div class="activity-row__actions">
     <button class="btn btn-sm" data-action="edit" data-id="${a.id}">Bearbeiten</button>
     <button class="btn btn-sm btn-danger" data-action="delete" data-id="${a.id}">Entfernen</button>
+  </div>
+  <div class="activity-row__detail" id="detail-${a.id}">
+    <div class="activity-row__detail-grid">
+      ${a.location ? `<div><span class="activity-row__detail-label">Ort</span>${h(a.location)}</div>` : ''}
+      <div><span class="activity-row__detail-label">Budget</span>${a.budget ? a.budget + ' €/Person' : '–'}</div>
+      <div><span class="activity-row__detail-label">Personen</span>${a.min_people ?? 1}–${a.max_people ?? '∞'}</div>
+      <div><span class="activity-row__detail-label">Energie</span>${elab(a.energy)}</div>
+      <div><span class="activity-row__detail-label">Dauer</span>${a.duration ? a.duration + ' h' : '–'}</div>
+      <div><span class="activity-row__detail-label">Indoor/Outdoor</span>${iolab(a.inout)}</div>
+    </div>
+    ${(a.tags ?? []).length ? `<div class="activity-row__detail-tags">${a.tags.map(t => `<span class="tag tag-gray">${h(t)}</span>`).join('')}</div>` : ''}
   </div>
 </div>`;
   }).join('')}</div>`;
@@ -181,6 +192,14 @@ export function render(container) {
 
     const deleteEl = target.closest('[data-action="delete"]');
     if (deleteEl) { deleteActivity(deleteEl.dataset.id); return; }
+
+    // Toggle detail expansion (skip if clicked an action button)
+    const rowEl = target.closest('[data-action="toggle-detail"]');
+    if (rowEl && !target.closest('.activity-row__actions')) {
+      const detail = document.getElementById('detail-' + rowEl.dataset.id);
+      if (detail) detail.classList.toggle('open');
+      return;
+    }
   };
 
   _changeHandler = e => {

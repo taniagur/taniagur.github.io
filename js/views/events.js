@@ -38,7 +38,7 @@ function renderCalendar() {
     const evs = events.filter(e => e.date === ds);
     markup += `<div class="cal-day ${isT ? 'today' : ''} ${evs.length ? 'has-event' : ''}" data-action="select-day" data-date="${ds}">
       <div class="day-num">${d}</div>
-      ${evs.map(e => `<div class="cal-event ${e.mode === 'romantic' ? 'romantic' : ''}">${h(e.activityName)}</div>`).join('')}
+      ${evs.map(e => `<div class="cal-event ${e.mode === 'romantic' ? 'romantic' : ''}">${h(e.activity_name)}</div>`).join('')}
     </div>`;
   }
   const rem = (off + last.getDate()) % 7;
@@ -57,7 +57,7 @@ function selectDay(ds) {
   </div>`;
   if (!evs.length) { markup += '<div style="font-size:13px;color:var(--muted);">Keine Treffen.</div>'; }
   else markup += evs.map(e => `<div class="log-entry ${e.done ? 'done' : ''} ${e.mode === 'romantic' ? 'romantic' : ''}">
-    <div class="log-activity">${h(e.activityName)}${e.mode === 'romantic' ? ' ♥' : ''}${e.time ? ' · ' + h(e.time) : ''}</div>
+    <div class="log-activity">${h(e.activity_name)}${e.mode === 'romantic' ? ' ♥' : ''}${e.time ? ' · ' + h(e.time) : ''}</div>
     <div class="log-people">${h(e.people ?? '–')}</div>
     ${e.note ? `<div class="log-note">${h(e.note)}</div>` : ''}
     <div class="log-actions">
@@ -100,8 +100,8 @@ function renderLog() {
   fp.innerHTML = '<option value="">Alle Personen</option>' + friends.map(f => `<option value="${f.id}" ${sp === f.id ? 'selected' : ''}>${h(f.name)}</option>`).join('');
   fa.innerHTML = '<option value="">Alle Aktivitäten</option>' + activities.map(a => `<option value="${a.id}" ${sa === a.id ? 'selected' : ''}>${h(a.name)}</option>`).join('');
   let evs = [...events].sort((a, b) => b.date.localeCompare(a.date));
-  if (sp) evs = evs.filter(e => (e.peopleIds ?? []).includes(sp));
-  if (sa) evs = evs.filter(e => e.activityId === sa);
+  if (sp) evs = evs.filter(e => (e.people_ids ?? []).includes(sp));
+  if (sa) evs = evs.filter(e => e.activity_id === sa);
   if (sm) evs = evs.filter(e => e.mode === sm);
   if (sd === 'open') evs = evs.filter(e => !e.done);
   if (sd === 'done') evs = evs.filter(e => e.done);
@@ -132,7 +132,7 @@ function renderLog() {
     </div>
     <div class="log-entry__body">
       <div class="log-entry__title">
-        ${h(e.activityName)}${isRomantic ? ' ♥' : ''}${e.time ? `<span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:6px;">${h(e.time)}</span>` : ''}
+        ${h(e.activity_name)}${isRomantic ? ' ♥' : ''}${e.time ? `<span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:6px;">${h(e.time)}</span>` : ''}
       </div>
       <div class="log-entry__people">${h(e.people ?? '–')}</div>
       ${e.note ? `<div class="log-note">${h(e.note)}</div>` : ''}
@@ -195,10 +195,6 @@ export function render(container, mode = 'calendar') {
 
   container.innerHTML = `
 <div style="padding:24px;max-width:960px;margin:0 auto;">
-  <div id="events-subnav" style="display:flex;gap:8px;margin-bottom:16px;">
-    <button id="btn-calendar-tab" class="btn btn-sm">Kalender</button>
-    <button id="btn-log-tab" class="btn btn-sm">Verlauf</button>
-  </div>
   <div id="events-calendar">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <button class="btn btn-sm" data-action="cal-prev">← Zurück</button>
@@ -226,6 +222,10 @@ export function render(container, mode = 'calendar') {
       <select id="log-filter-done" style="max-width:160px;"><option value="">Alle Status</option><option value="open">Offen</option><option value="done">Abgehakt</option></select>
     </div>
     <div id="log-list"></div>
+  </div>
+  <div id="events-subnav" class="events-tab-toggle">
+    <button id="btn-calendar-tab" class="events-tab">Kalender</button>
+    <button id="btn-log-tab" class="events-tab">Verlauf</button>
   </div>
 </div>`;
 

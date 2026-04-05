@@ -55,10 +55,11 @@ function navigate(hash) {
 async function loadData() {
   document.getElementById('loading-overlay').classList.remove('hidden');
   try {
-    const [fr, ac, ev] = await Promise.all([
+    const [fr, ac, ev, pr] = await Promise.all([
       Store.getFriends(),
       Store.getActivities(),
       Store.getEvents(),
+      Store.getProfile(),
     ]);
     if (fr.error || ac.error || ev.error) {
       showToast('Verbindung fehlgeschlagen — bitte Seite neu laden.', 'error');
@@ -67,6 +68,7 @@ async function loadData() {
       friends:    fr.data ?? [],
       activities: ac.data ?? [],
       events:     ev.data ?? [],
+      profile:    pr.data ?? {},
     });
   } finally {
     document.getElementById('loading-overlay').classList.add('hidden');
@@ -108,10 +110,12 @@ sidebarOverlay.addEventListener('click', closeSidebar);
 
 // Close modals via data-modal-close attribute
 document.addEventListener('click', e => {
-  // Onboarding dismiss — overlay is outside #login-screen, so handled globally
+  // Onboarding dismiss — save to Supabase profile, hide overlay
   if (e.target.id === 'onboarding-done-btn') {
-    localStorage.setItem('sp_onboarding_done', '1');
     document.getElementById('onboarding-overlay').style.display = 'none';
+    const { profile } = getState();
+    setState({ profile: { ...profile, settings: { ...(profile?.settings ?? {}), onboarding_done: true } } });
+    Store.updateProfileSettings({ onboarding_done: true });
     return;
   }
   const closeEl = e.target.closest('[data-modal-close]');

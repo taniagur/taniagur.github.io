@@ -52,7 +52,7 @@ export function scoreFriend(friend, dateVal, events) {
     score += prefs.includes(dow) ? 20 : 0;
   } else { score += 10; }
   const evList = events ?? [];
-  const meetCount = evList.filter(e => (e.peopleIds ?? []).includes(friend.id)).length;
+  const meetCount = evList.filter(e => (e.people_ids ?? []).includes(friend.id)).length;
   score += Math.max(0, 20 - meetCount * 4);
   score += Math.random() * 10;
   return Math.min(100, score);

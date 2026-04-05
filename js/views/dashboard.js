@@ -96,7 +96,7 @@ function renderHome() {
             <span class="timeline__month">${monthStr}</span>
           </div>
           <div class="timeline__body">
-            <div class="timeline__title">${h(e.activityName)}${isRomantic ? ' ♥' : ''}</div>
+            <div class="timeline__title">${h(e.activity_name)}${isRomantic ? ' ♥' : ''}</div>
             <div class="timeline__meta">${h(e.people ?? '–')}${e.note ? ' · ' + h(e.note) : ''}</div>
           </div>
           ${statusTag}
@@ -171,7 +171,7 @@ function renderSuggResult() {
   if (resPeople) {
     resPeople.innerHTML = invited.map((f, i) => {
       const d  = dSince(f.last_seen);
-      const ut = !f.last_seen ? '<span class="tag tag-red" style="font-size:10px;padding:1px 5px;">Noch nie</span>'
+      const ut = !f.last_seen ? '<span class="tag tag-blue" style="font-size:10px;padding:1px 5px;">Neu</span>'
                : d > 90 ? `<span class="tag tag-red" style="font-size:10px;padding:1px 5px;">${d}T.</span>`
                : d > 30 ? `<span class="tag tag-yellow" style="font-size:10px;padding:1px 5px;">${d}T.</span>` : '';
       return `<div class="person-chip" data-action="swap" data-index="${i}" title="Klicken zum Tauschen" style="cursor:pointer;">

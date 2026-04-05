@@ -895,6 +895,42 @@ select { cursor: pointer; }
 }
 .cal-event.romantic { background: var(--pink); }
 
+/* Events tab toggle — centered below content */
+.events-tab-toggle {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-1);
+  margin-top: var(--sp-5);
+  padding: 3px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+.events-tab {
+  padding: 7px var(--sp-5);
+  font-family: var(--font);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  min-width: 100px;
+  text-align: center;
+}
+.events-tab:hover { color: var(--text); background: var(--bg-3); }
+.events-tab.active {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
 /* ------------------------------------------------------------
    15. LOG ENTRIES
    ------------------------------------------------------------ */
@@ -1531,15 +1567,51 @@ select { cursor: pointer; }
 
 .activity-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--sp-3);
   padding: var(--sp-2) var(--sp-3);
   border-radius: var(--radius-sm);
   transition: background 0.1s;
-  cursor: default;
+  cursor: pointer;
 }
 .activity-row:hover { background: var(--bg-2); }
 .activity-row:hover .activity-row__actions { opacity: 1; pointer-events: all; }
+
+/* Expandable detail panel */
+.activity-row__detail {
+  width: 100%;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.15s ease, padding 0.15s ease;
+  padding: 0 0 0 calc(32px + var(--sp-3)); /* align with text after icon */
+}
+.activity-row__detail.open {
+  max-height: 300px;
+  padding: var(--sp-2) 0 var(--sp-1) calc(32px + var(--sp-3));
+}
+.activity-row__detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--sp-2) var(--sp-4);
+  font-size: var(--text-sm);
+  color: var(--text);
+}
+.activity-row__detail-label {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.activity-row__detail-tags {
+  margin-top: var(--sp-2);
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
 
 .activity-row__icon {
   width: 32px;

@@ -44,7 +44,7 @@ function renderFriendGrid() {
     const since   = dSince(f.last_seen);
     const scls    = since > 90 ? 'tag-red' : since > 30 ? 'tag-yellow' : 'tag-green';
     const slbl    = f.last_seen ? `vor ${since}T` : 'Nie';
-    const ec      = events.filter(e => (e.peopleIds ?? []).includes(f.id)).length;
+    const ec      = events.filter(e => (e.people_ids ?? []).includes(f.id)).length;
     const score   = Math.round(scoreFriend(f, null, events));
     const isRomantic = f.category === 'romantic';
 
@@ -173,12 +173,12 @@ function showHistory(id) {
   const { friends, events } = getState();
   const f = friends.find(x => x.id === id);
   if (!f) return;
-  const evs = events.filter(e => (e.peopleIds ?? []).includes(id)).sort((a, b) => b.date.localeCompare(a.date));
+  const evs = events.filter(e => (e.people_ids ?? []).includes(id)).sort((a, b) => b.date.localeCompare(a.date));
   document.getElementById('history-modal-title').textContent = `${f.name} – Verlauf`;
   document.getElementById('history-content').innerHTML = evs.length
     ? evs.map(e => `<div class="log-entry ${e.done ? 'done' : ''} ${e.mode === 'romantic' ? 'romantic' : ''}">
         <div class="log-date">${fmtDate(e.date)}${e.time ? ' · ' + h(e.time) : ''}</div>
-        <div class="log-activity">${h(e.activityName)}${e.mode === 'romantic' ? ' ♥' : ''}</div>
+        <div class="log-activity">${h(e.activity_name)}${e.mode === 'romantic' ? ' ♥' : ''}</div>
         ${e.note ? `<div class="log-note">${h(e.note)}</div>` : ''}
         ${e.done ? '<span class="tag tag-green">✓</span>' : '<span class="tag tag-yellow">offen</span>'}
       </div>`).join('')

@@ -1,7 +1,6 @@
 import * as Auth from '../auth.js';
+import { getState } from '../state.js';
 import { showToast } from '../ui/feedback.js';
-
-const ONBOARDING_KEY = 'sp_onboarding_done';
 
 let _mode            = 'signin';
 let _delegHandler    = null; // single delegated listener on #login-screen
@@ -10,7 +9,8 @@ let _delegHandler    = null; // single delegated listener on #login-screen
 // ONBOARDING
 // ============================================================
 export function showOnboardingIfNeeded() {
-  if (localStorage.getItem(ONBOARDING_KEY)) return;
+  const { profile } = getState();
+  if (profile?.settings?.onboarding_done) return;
   const overlay = document.getElementById('onboarding-overlay');
   if (overlay) overlay.style.display = 'flex';
 }

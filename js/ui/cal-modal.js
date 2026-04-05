@@ -22,7 +22,6 @@ export function openCalModal(options = {}) {
         style="width:auto;accent-color:var(--accent);"> ${h(f.name)}
     </label>`).join('');
   document.getElementById('ce-note').value = '';
-  document.getElementById('gcal-status').style.display = 'none';
   document.getElementById('cal-modal').classList.add('open');
 }
 
@@ -48,9 +47,10 @@ export async function saveCalEvent() {
   btn.classList.add('btn-loading');
   const payload = {
     date, time,
-    activityId:   actId,
-    activityName: act?.name ?? 'Treffen',
-    peopleIds, people: people.join(', '), note, done: false, mode,
+    activity_name: act?.name ?? 'Treffen',
+    people_ids: peopleIds,
+    people: people.join(', '),
+    note, done: false, mode,
   };
   try {
     const { data, error } = await Store.addEvent(payload);
@@ -77,7 +77,7 @@ export async function deleteEvent(id, onSuccess) {
   if (!e) return;
   const snapshot = structuredClone(events);
   setState({ events: events.filter(x => x.id !== id) });
-  showToast(`${h(e.activityName)} entfernt.`, '', () => {
+  showToast(`${h(e.activity_name)} entfernt.`, '', () => {
     setState({ events: snapshot });
     if (onSuccess) onSuccess('undo');
   });
@@ -133,39 +133,6 @@ export function initCalModal() {
   if (_calModalInited) return;
   _calModalInited = true;
   document.getElementById('cal-save-btn')?.addEventListener('click', () => saveCalEvent());
-  document.getElementById('cal-gcal-btn')?.addEventListener('click', () => saveToGoogleCal());
   document.getElementById('cal-ics-btn')?.addEventListener('click',  () => exportICS());
 }
 
-// Save to Google Calendar via Claude API + MCP
-export async function saveToGoogleCal() {
-  const { date, time, act, people, note } = getCalData();
-  if (!date) { showToast('Bitte Datum wählen.', 'error'); return; }
-  if (!act)  { showToast('Bitte Aktivität wählen.', 'error'); return; }
-  const btn = document.getElementById('cal-gcal-btn');
-  const st  = document.getElementById('gcal-status');
-  btn.classList.add('btn-loading');
-  st.style.display='block'; st.style.background='var(--accent-bg)'; st.style.color='var(--accent)';
-  st.textContent = 'Wird in Google Calendar eingetragen…';
-  const [hh, mm] = (time ?? '12:00').split(':');
-  const endH = pad2(Math.min(parseInt(hh)+Math.floor(act.duration ?? 2), 23));
-  const prompt = `Erstelle einen Google Calendar Termin:\n- Titel: ${act.name}${people.length?' mit '+people.join(', '):''}\n- Start: ${date}T${hh}:${mm}:00 (Europe/Berlin)\n- Ende: ${date}T${endH}:${mm}:00 (Europe/Berlin)\n- Ort: ${act.location??''}\n- Beschreibung: ${[people.length?'Eingeladen: '+people.join(', '):'', act.todos?'Todos: '+act.todos:'', note].filter(Boolean).join('\\n')}\nBitte direkt eintragen.`;
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000,
-        messages:[{role:'user',content:prompt}],
-        mcp_servers:[{type:'url',url:'https://gcal.mcp.claude.com/mcp',name:'google-calendar'}] }),
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    st.style.background='var(--green-bg)'; st.style.color='var(--green)';
-    st.textContent = '✓ In Google Calendar eingetragen!';
-    saveCalEvent();
-  } catch(err) {
-    st.style.background='var(--danger-bg)'; st.style.color='var(--danger)';
-    st.textContent = `Fehler: ${err.message}. ICS-Export als Alternative nutzen.`;
-  } finally {
-    btn.classList.remove('btn-loading');
-  }
-}

@@ -183,7 +183,7 @@
           <select id="p-partner"><option value="solo">Alleine</option><option value="partner">Mit Partner</option><option value="either">Flexibel</option></select>
         </div>
       </div>
-      <div class="form-row full" style="margin-bottom:10px;">
+      <div class="form-row full">
         <label id="p-days-label">Bevorzugte Wochentage</label>
         <div class="days-toggle" id="p-days" role="group" aria-labelledby="p-days-label">
           <button type="button" class="day-btn" data-day="Mo">Mo</button>
@@ -258,11 +258,9 @@
         <div id="ce-people" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;"></div>
       </div>
       <div class="form-row full"><label for="ce-note">Notiz</label><textarea id="ce-note" placeholder="Was war besonders?" maxlength="1000"></textarea></div>
-      <div id="gcal-status" style="display:none;font-size:13px;padding:8px 12px;border-radius:6px;margin-bottom:8px;"></div>
       <div class="modal-actions">
         <button class="btn" data-modal-close="cal-modal">Abbrechen</button>
-        <button class="btn" id="cal-ics-btn">ICS</button>
-        <button class="btn" id="cal-gcal-btn" style="background:var(--accent);color:#fff;border-color:var(--accent);">Google Cal</button>
+        <button class="btn" id="cal-ics-btn">Kalender-Datei (.ics)</button>
         <button class="btn btn-primary" id="cal-save-btn">Speichern</button>
       </div>
     </div>
