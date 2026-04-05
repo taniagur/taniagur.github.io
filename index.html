@@ -37,6 +37,9 @@
       <div class="form-row full">
         <label for="login-password">Passwort</label>
         <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <!-- Fixed-height slot: shows pw-hint in signup, empty (but same height) in signin -->
+      <div class="login-form__hint-slot">
         <div class="login-pw-hint" id="login-pw-hint">Mindestens 6 Zeichen</div>
       </div>
       <div class="login-error" id="login-error" role="alert" aria-live="polite"></div>
