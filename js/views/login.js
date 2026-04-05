@@ -140,15 +140,15 @@ function setMode(mode) {
     signinTab?.classList.add('active');
     signupTab?.classList.remove('active');
     if (btn)    { btn.textContent = 'Anmelden'; btn.disabled = false; }
-    if (forgot) forgot.style.display = 'block';
-    if (pwHint) pwHint.style.display = 'none';
+    if (forgot) forgot.style.visibility = 'visible';
+    if (pwHint) pwHint.style.visibility = 'hidden';
     if (pwInput) pwInput.autocomplete = 'current-password';
   } else {
     signinTab?.classList.remove('active');
     signupTab?.classList.add('active');
     if (btn)    { btn.textContent = 'Konto erstellen'; btn.disabled = false; }
-    if (forgot) forgot.style.display = 'none';
-    if (pwHint) pwHint.style.display = 'block';
+    if (forgot) forgot.style.visibility = 'hidden';
+    if (pwHint) pwHint.style.visibility = 'visible';
     if (pwInput) pwInput.autocomplete = 'new-password';
   }
 }
@@ -164,10 +164,10 @@ export function render() {
 
   // Set initial state
   const pwHint = document.querySelector('.login-pw-hint');
-  if (pwHint) pwHint.style.display = 'none';
+  if (pwHint) pwHint.style.visibility = 'hidden';
 
   const forgot = document.getElementById('login-forgot-btn');
-  if (forgot) forgot.style.display = 'block';
+  if (forgot) forgot.style.visibility = 'visible';
 
   const btn = document.getElementById('login-btn');
   if (btn) { btn.textContent = 'Anmelden'; btn.disabled = false; btn.classList.remove('btn-loading'); }
