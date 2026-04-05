@@ -15,26 +15,26 @@
   --border-2:  #B8A997;
 
   --text:      #342A1F;
-  --muted:     #6B5D4F;
-  --muted-2:   #9A8B7A;
+  --muted:     #6A5C4E;   /* 5.6:1 on --bg, 5.0:1 on --bg-2, 4.5:1 on --bg-3 */
+  --muted-2:   #786C5F;   /* 4.5:1 on --bg (supplementary text) */
 
   --accent:       #7A5C3E;
   --accent-bg:    rgba(122, 92, 62, 0.10);
   --accent-hover: #664C32;
 
-  --cta:          #B85C38;
-  --cta-hover:    #A04E2E;
-  --cta-bg:       rgba(184, 92, 56, 0.10);
+  --cta:          #AB5634;  /* 4.5:1 on --bg, 5.1:1 for #fff-on */
+  --cta-hover:    #954A2C;
+  --cta-bg:       rgba(171, 86, 52, 0.10);
 
-  --danger:    #C44B3F;
-  --danger-bg: rgba(196, 75, 63, 0.10);
-  --warn:      #8A6D00;
-  --warn-bg:   rgba(180, 140, 40, 0.10);
+  --danger:    #BB483C;     /* 4.5:1 on --bg */
+  --danger-bg: rgba(187, 72, 60, 0.10);
+  --warn:      #876A00;     /* 4.5:1 on --bg */
+  --warn-bg:   rgba(135, 106, 0, 0.10);
 
-  --green:     #5A7A5E;
-  --green-bg:  rgba(90, 122, 94, 0.12);
-  --pink:      #9B6B7A;
-  --pink-bg:   rgba(155, 107, 122, 0.12);
+  --green:     #56755A;     /* 4.5:1 on --bg */
+  --green-bg:  rgba(86, 117, 90, 0.12);
+  --pink:      #8D616F;     /* 4.6:1 on --bg, 5.2:1 for #fff-on */
+  --pink-bg:   rgba(141, 97, 111, 0.12);
 
   /* Spacing scale */
   --sp-1: 4px;
@@ -79,7 +79,7 @@
 
     --text:      rgba(245, 240, 234, 0.87);
     --muted:     #A89A8A;
-    --muted-2:   #6B6058;
+    --muted-2:   #8E8075;   /* lightened: 4.5:1 on dark --bg */
 
     --accent:       #C49A6C;
     --accent-bg:    rgba(196, 154, 108, 0.12);
