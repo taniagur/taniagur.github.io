@@ -161,7 +161,7 @@ function renderSuggResult() {
   const resBudget = document.getElementById('res-budget');
   if (resBudget) resBudget.textContent = act.budget ? act.budget + '€ / Person' : '–';
   const resPersons = document.getElementById('res-persons');
-  if (resPersons) resPersons.textContent = `${act.min ?? 1}–${act.max ?? '∞'} Personen`;
+  if (resPersons) resPersons.textContent = `${act.min_people ?? 1}–${act.max_people ?? '∞'} Personen`;
   const resEnergy = document.getElementById('res-energy-lbl');
   if (resEnergy) resEnergy.textContent = elab(act.energy);
   const resTodos = document.getElementById('res-todos');
@@ -212,15 +212,15 @@ function generateSuggestion(forceIds) {
   if (dateVal) {
     const dow      = ['So','Mo','Di','Mi','Do','Fr','Sa'][new Date(dateVal).getDay()];
     const filtered = pool.filter(f => !(f.days ?? []).length || (f.days ?? []).includes(dow));
-    if (filtered.length >= Math.max(1, (act.min ?? 1) - 1)) pool = filtered;
+    if (filtered.length >= Math.max(1, (act.min_people ?? 1) - 1)) pool = filtered;
   }
 
   pool = prio
     ? [...pool].sort((a, b) => b._score - a._score)
     : pool.sort(() => Math.random() - .5);
 
-  const maxP  = Math.min((act.max ?? 99) - 1, pool.length);
-  const minP  = Math.max((act.min ?? 1) - 1, 1);
+  const maxP  = Math.min((act.max_people ?? 99) - 1, pool.length);
+  const minP  = Math.max((act.min_people ?? 1) - 1, 1);
   const count = minP + Math.floor(Math.random() * Math.max(1, maxP - minP + 1));
 
   let invited = [];

@@ -76,8 +76,8 @@ function openActivityModal(id) {
   document.getElementById('a-location').value = a?.location ?? '';
   document.getElementById('a-budget').value   = a?.budget ?? '';
   document.getElementById('a-energy').value   = a?.energy ?? 'low';
-  document.getElementById('a-min').value      = a?.min ?? '';
-  document.getElementById('a-max').value      = a?.max ?? '';
+  document.getElementById('a-min').value      = a?.min_people ?? '';
+  document.getElementById('a-max').value      = a?.max_people ?? '';
   document.getElementById('a-duration').value = a?.duration ?? '';
   document.getElementById('a-mode').value     = a?.mode ?? 'social';
   document.getElementById('a-inout').value    = a?.inout ?? 'indoor';
@@ -103,8 +103,8 @@ async function saveActivity() {
     location: document.getElementById('a-location').value,
     budget:   parseFloat(document.getElementById('a-budget').value) || 0,
     energy:   document.getElementById('a-energy').value,
-    min:      parseInt(document.getElementById('a-min').value) || 1,
-    max:      parseInt(document.getElementById('a-max').value) || 99,
+    min_people: parseInt(document.getElementById('a-min').value) || 1,
+    max_people: parseInt(document.getElementById('a-max').value) || 99,
     duration: parseFloat(document.getElementById('a-duration').value) || 0,
     mode:     document.getElementById('a-mode').value,
     inout:    document.getElementById('a-inout').value,
