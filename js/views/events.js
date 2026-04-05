@@ -2,7 +2,7 @@ import { getState, setState, subscribe } from '../state.js';
 import * as Store from '../store/index.js';
 import { showToast } from '../ui/feedback.js';
 import { h, fmtDate, pad2 } from '../ui/helpers.js';
-import { openCalModal, saveCalEvent, deleteEvent, exportICS, saveToGoogleCal, getCalData } from '../ui/cal-modal.js';
+import { openCalModal, deleteEvent } from '../ui/cal-modal.js';
 
 let _container     = null;
 let _unsubscribe   = null;
@@ -13,9 +13,7 @@ let _calM = new Date().getMonth();
 let _subPage = 'calendar';
 
 // Listeners for modal buttons (need to be removed on cleanup)
-let _calSaveHandler  = null;
-let _gcalHandler     = null;
-let _icsHandler      = null;
+// Cal-modal button listeners are now registered globally in cal-modal.js initCalModal()
 
 // ============================================================
 // CALENDAR
@@ -290,15 +288,6 @@ export function render(container, mode = 'calendar') {
   container.addEventListener('click', _delegHandler);
   container.addEventListener('change', _changeHandler);
 
-  // Modal button listeners
-  _calSaveHandler = () => saveCalEvent();
-  _gcalHandler    = () => saveToGoogleCal();
-  _icsHandler     = () => exportICS();
-
-  document.getElementById('cal-save-btn').addEventListener('click', _calSaveHandler);
-  document.getElementById('cal-gcal-btn').addEventListener('click', _gcalHandler);
-  document.getElementById('cal-ics-btn').addEventListener('click', _icsHandler);
-
   // Subscribe to state
   _unsubscribe = subscribe(() => {
     if (_subPage === 'calendar') {
@@ -319,21 +308,6 @@ export function cleanup() {
   if (_changeHandler && _container) {
     _container.removeEventListener('change', _changeHandler);
     _changeHandler = null;
-  }
-  if (_calSaveHandler) {
-    const btn = document.getElementById('cal-save-btn');
-    if (btn) btn.removeEventListener('click', _calSaveHandler);
-    _calSaveHandler = null;
-  }
-  if (_gcalHandler) {
-    const btn = document.getElementById('cal-gcal-btn');
-    if (btn) btn.removeEventListener('click', _gcalHandler);
-    _gcalHandler = null;
-  }
-  if (_icsHandler) {
-    const btn = document.getElementById('cal-ics-btn');
-    if (btn) btn.removeEventListener('click', _icsHandler);
-    _icsHandler = null;
   }
   if (_unsubscribe) {
     _unsubscribe();

@@ -126,6 +126,17 @@ export function exportICS() {
   showToast('ICS-Datei exportiert.', 'success');
 }
 
+// One-time init: attach click listeners to the modal buttons in index.html.
+// These live in the global DOM, so they must be registered once (not per-view).
+let _calModalInited = false;
+export function initCalModal() {
+  if (_calModalInited) return;
+  _calModalInited = true;
+  document.getElementById('cal-save-btn')?.addEventListener('click', () => saveCalEvent());
+  document.getElementById('cal-gcal-btn')?.addEventListener('click', () => saveToGoogleCal());
+  document.getElementById('cal-ics-btn')?.addEventListener('click',  () => exportICS());
+}
+
 // Save to Google Calendar via Claude API + MCP
 export async function saveToGoogleCal() {
   const { date, time, act, people, note } = getCalData();

@@ -1,6 +1,7 @@
 import * as Auth from './auth.js';
 import { getState, setState } from './state.js';
 import { showToast } from './ui/feedback.js';
+import { initCalModal } from './ui/cal-modal.js';
 import * as LoginView from './views/login.js';
 import * as DashboardView from './views/dashboard.js';
 import * as FriendsView from './views/friends.js';
@@ -257,4 +258,5 @@ async function init() {
   }
 }
 
+initCalModal();
 init();

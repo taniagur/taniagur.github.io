@@ -3,12 +3,13 @@ import { showToast } from '../ui/feedback.js';
 import { h, ini, avc, dSince, fmtDate, scoreFriend, elab } from '../ui/helpers.js';
 import { openCalModal } from '../ui/cal-modal.js';
 
-let _container    = null;
-let _unsubscribe  = null;
-let _currentMode  = 'social';
-let _lastSugg     = null;
-let _swapIdx      = null;
-let _delegHandler = null;
+let _container      = null;
+let _unsubscribe    = null;
+let _currentMode    = 'social';
+let _lastSugg       = null;
+let _swapIdx        = null;
+let _delegHandler   = null;
+let _swapHandler    = null;
 
 // ============================================================
 // HOME RENDERING
@@ -212,15 +213,15 @@ function generateSuggestion(forceIds) {
   if (dateVal) {
     const dow      = ['So','Mo','Di','Mi','Do','Fr','Sa'][new Date(dateVal).getDay()];
     const filtered = pool.filter(f => !(f.days ?? []).length || (f.days ?? []).includes(dow));
-    if (filtered.length >= Math.max(1, (act.min_people ?? 1) - 1)) pool = filtered;
+    if (filtered.length >= (act.min_people ?? 1)) pool = filtered;
   }
 
   pool = prio
     ? [...pool].sort((a, b) => b._score - a._score)
     : pool.sort(() => Math.random() - .5);
 
-  const maxP  = Math.min((act.max_people ?? 99) - 1, pool.length);
-  const minP  = Math.max((act.min_people ?? 1) - 1, 1);
+  const maxP  = Math.min(act.max_people ?? 99, pool.length);
+  const minP  = Math.max(act.min_people ?? 1, 1);
   const count = minP + Math.floor(Math.random() * Math.max(1, maxP - minP + 1));
 
   let invited = [];
@@ -388,13 +389,6 @@ export function render(container, mode = 'home') {
       return;
     }
 
-    // do-swap (in swap modal)
-    const doSwapEl = target.closest('[data-action="do-swap"]');
-    if (doSwapEl) {
-      doSwap(doSwapEl.dataset.id);
-      return;
-    }
-
     // suggest btn
     if (target.id === 'suggest-btn' || target.id === 'rerool-btn') {
       generateSuggestion();
@@ -413,6 +407,14 @@ export function render(container, mode = 'home') {
   };
 
   container.addEventListener('click', _delegHandler);
+
+  // Swap modal is in global DOM (outside container), needs its own listener
+  const swapModal = document.getElementById('swap-modal');
+  _swapHandler = e => {
+    const doSwapEl = e.target.closest('[data-action="do-swap"]');
+    if (doSwapEl) doSwap(doSwapEl.dataset.id);
+  };
+  swapModal?.addEventListener('click', _swapHandler);
 
   // Subscribe to state changes
   _unsubscribe = subscribe(state => {
@@ -445,6 +447,10 @@ export function cleanup() {
   if (_delegHandler && _container) {
     _container.removeEventListener('click', _delegHandler);
     _delegHandler = null;
+  }
+  if (_swapHandler) {
+    document.getElementById('swap-modal')?.removeEventListener('click', _swapHandler);
+    _swapHandler = null;
   }
   if (_unsubscribe) {
     _unsubscribe();
