@@ -108,8 +108,8 @@ async function saveActivity() {
     duration: parseFloat(document.getElementById('a-duration').value) || 0,
     mode:     document.getElementById('a-mode').value,
     inout:    document.getElementById('a-inout').value,
-    tags:     document.getElementById('a-tags').value.split(',').map(t => t.trim()).filter(Boolean),
-    todos:    document.getElementById('a-todos').value,
+    tags:     document.getElementById('a-tags').value.split(',').map(t => t.trim()).filter(Boolean) || [],
+    todos:    document.getElementById('a-todos').value || null,
   };
   try {
     const { activities } = getState();

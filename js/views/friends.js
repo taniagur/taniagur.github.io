@@ -124,7 +124,7 @@ async function savePerson() {
   if (notes.length > LIMITS.notes) { showToast(`Notizen darf max. ${LIMITS.notes} Zeichen haben.`, 'error'); return; }
   const btn  = document.getElementById('person-save-btn');
   btn.classList.add('btn-loading');
-  const days = [...document.querySelectorAll('#p-days .day-btn.sel')].map(b => b.dataset.day);
+  const days = [...document.querySelectorAll('#p-days .day-btn.sel')].map(b => b.dataset.day) || [];
   const id   = document.getElementById('p-id').value;
   const payload = {
     name,
