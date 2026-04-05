@@ -1,15 +1,20 @@
 import { getState, setState, subscribe } from '../state.js';
 import * as Store from '../store/index.js';
 import { showToast } from '../ui/feedback.js';
+import { callAI } from '../ui/ai.js';
 import { h, ini, avc, dSince, fmtDate, catlab, scoreFriend, sanitize, initCharCounter } from '../ui/helpers.js';
 
 const LIMITS = { name: 100, city: 100, notes: 2000 };
+
+// Current AI profile chips in the modal
+let _aiProfile = {};
 
 let _container         = null;
 let _unsubscribe       = null;
 let _delegHandler      = null;
 let _changeHandler     = null;
 let _saveHandler       = null;
+let _modalHandler      = null;
 let _counterCleanups   = [];
 
 // ============================================================
@@ -105,6 +110,17 @@ function openPersonModal(id) {
   });
   document.getElementById('person-modal').classList.add('open');
 
+  // AI profile section — show only if ai_enabled
+  const { profile: userProfile } = getState();
+  const aiEnabled = !!userProfile?.settings?.ai_enabled;
+  const aiSection = document.getElementById('ai-profile-section');
+  if (aiSection) aiSection.style.display = aiEnabled ? '' : 'none';
+  document.getElementById('p-ai-text').value = '';
+
+  // Load existing AI profile chips
+  _aiProfile = f?.profile ? { ...f.profile } : {};
+  renderAIChips();
+
   // Char counters
   _counterCleanups.forEach(fn => fn());
   _counterCleanups = [
@@ -112,6 +128,93 @@ function openPersonModal(id) {
     initCharCounter('p-city',  'counter-p-city',  LIMITS.city),
     initCharCounter('p-notes', 'counter-p-notes', LIMITS.notes),
   ];
+}
+
+function renderAIChips() {
+  const container = document.getElementById('p-ai-chips');
+  const row = document.getElementById('p-ai-chips-row');
+  if (!container || !row) return;
+
+  const entries = [];
+  if (_aiProfile.interessen?.length) {
+    for (const tag of _aiProfile.interessen) entries.push({ label: '', value: tag, key: 'interessen', arrVal: tag });
+  }
+  if (_aiProfile.personality)       entries.push({ label: 'Persönlichkeit', value: _aiProfile.personality, key: 'personality' });
+  if (_aiProfile.energy_level)      entries.push({ label: 'Energie', value: _aiProfile.energy_level, key: 'energy_level' });
+  if (_aiProfile.relationship_depth) entries.push({ label: 'Nähe', value: _aiProfile.relationship_depth, key: 'relationship_depth' });
+
+  if (!entries.length) { row.style.display = 'none'; return; }
+  row.style.display = '';
+
+  container.innerHTML = entries.map((e, i) =>
+    `<span class="ai-chip" data-chip-idx="${i}">` +
+    (e.label ? `<span class="ai-chip__label">${h(e.label)}:</span>` : '') +
+    `${h(e.value)} <span class="ai-chip__remove" data-action="remove-chip" data-key="${e.key}" ${e.arrVal ? `data-arr-val="${h(e.arrVal)}"` : ''}>×</span>` +
+    `</span>`
+  ).join('');
+}
+
+async function analyzeWithAI() {
+  const text = document.getElementById('p-ai-text').value.trim();
+  if (!text) { showToast('Bitte zuerst einen Text eingeben.', 'error'); return; }
+  const btn = document.getElementById('p-ai-analyze-btn');
+  const orig = btn.textContent;
+  btn.textContent = 'Analysiere…';
+  btn.disabled = true;
+  try {
+    const result = await callAI('extract', { text });
+    if (result && typeof result === 'object') {
+      _aiProfile = {
+        ..._aiProfile,
+        interessen: result.interessen ?? _aiProfile.interessen ?? [],
+        personality: result.personality ?? _aiProfile.personality,
+        energy_level: result.energy_level ?? _aiProfile.energy_level,
+        relationship_depth: result.relationship_depth ?? _aiProfile.relationship_depth,
+      };
+      // Also fill empty form fields from extraction
+      if (result.vorname && !document.getElementById('p-name').value) {
+        document.getElementById('p-name').value = result.vorname;
+      }
+      if (result.stadt && !document.getElementById('p-city').value) {
+        document.getElementById('p-city').value = result.stadt;
+      }
+      if (result.kategorie) {
+        const catEl = document.getElementById('p-category');
+        if (catEl && ['friend','romantic','family','work'].includes(result.kategorie)) {
+          catEl.value = result.kategorie;
+        }
+      }
+      renderAIChips();
+      document.getElementById('p-ai-text').value = '';
+      showToast('Profil analysiert.', 'success');
+    }
+  } catch (err) {
+    showToast('KI-Fehler: ' + err.message, 'error');
+  } finally {
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+}
+
+function removeChip(key, arrVal) {
+  if (arrVal && Array.isArray(_aiProfile[key])) {
+    _aiProfile[key] = _aiProfile[key].filter(v => v !== arrVal);
+  } else {
+    delete _aiProfile[key];
+  }
+  renderAIChips();
+}
+
+function addChip() {
+  const input = document.getElementById('p-ai-chip-input');
+  const val = input.value.trim();
+  if (!val) return;
+  if (!_aiProfile.interessen) _aiProfile.interessen = [];
+  if (!_aiProfile.interessen.includes(val)) {
+    _aiProfile.interessen.push(val);
+  }
+  input.value = '';
+  renderAIChips();
 }
 
 async function savePerson() {
@@ -126,6 +229,10 @@ async function savePerson() {
   btn.classList.add('btn-loading');
   const days = [...document.querySelectorAll('#p-days .day-btn.sel')].map(b => b.dataset.day) || [];
   const id   = document.getElementById('p-id').value;
+  // Include AI profile if any chips exist
+  const hasProfile = Object.keys(_aiProfile).some(k =>
+    Array.isArray(_aiProfile[k]) ? _aiProfile[k].length : _aiProfile[k]
+  );
   const payload = {
     name,
     birthday: document.getElementById('p-birthday').value,
@@ -134,6 +241,7 @@ async function savePerson() {
     partner:  document.getElementById('p-partner').value,
     days,
     notes,
+    profile: hasProfile ? _aiProfile : null,
   };
   try {
     const { friends } = getState();
@@ -241,6 +349,20 @@ export function render(container) {
   _saveHandler = () => savePerson();
   document.getElementById('person-save-btn').addEventListener('click', _saveHandler);
 
+  // AI buttons live inside person-modal (global DOM)
+  const personModal = document.getElementById('person-modal');
+  _modalHandler = e => {
+    if (e.target.id === 'p-ai-analyze-btn') { analyzeWithAI(); return; }
+    if (e.target.id === 'p-ai-chip-add')    { addChip(); return; }
+    const removeEl = e.target.closest('[data-action="remove-chip"]');
+    if (removeEl) { removeChip(removeEl.dataset.key, removeEl.dataset.arrVal); return; }
+  };
+  personModal?.addEventListener('click', _modalHandler);
+  // Enter key in chip input adds chip
+  document.getElementById('p-ai-chip-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); addChip(); }
+  });
+
   _unsubscribe = subscribe(() => renderFriendGrid());
 }
 
@@ -248,6 +370,10 @@ export function cleanup() {
   if (_delegHandler && _container) {
     _container.removeEventListener('click', _delegHandler);
     _delegHandler = null;
+  }
+  if (_modalHandler) {
+    document.getElementById('person-modal')?.removeEventListener('click', _modalHandler);
+    _modalHandler = null;
   }
   if (_changeHandler && _container) {
     _container.removeEventListener('change', _changeHandler);

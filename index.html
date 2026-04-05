@@ -141,7 +141,10 @@
           <div class="sidebar__user-avatar" id="user-avatar"></div>
           <span class="sidebar__user-email" id="user-email"></span>
         </div>
-        <button class="btn btn-sm btn-ghost sidebar__logout" id="logout-btn">Abmelden</button>
+        <div class="sidebar__footer-btns">
+          <button class="btn btn-sm btn-ghost" id="settings-btn">⚙ Einstellungen</button>
+          <button class="btn btn-sm btn-ghost sidebar__logout" id="logout-btn">Abmelden</button>
+        </div>
       </div>
     </aside>
 
@@ -199,6 +202,23 @@
         <label for="p-notes">Notizen</label>
         <textarea id="p-notes" placeholder="Interessen, Besonderheiten…" maxlength="2000"></textarea>
         <div class="char-counter" id="counter-p-notes"></div>
+      </div>
+      <!-- AI Profile extraction -->
+      <div id="ai-profile-section" class="ai-profile-section" style="display:none;">
+        <div class="ai-profile-section__header">✨ KI-Profil</div>
+        <div class="form-row full">
+          <label for="p-ai-text">Erzähl etwas über diesen Freund</label>
+          <textarea id="p-ai-text" placeholder="z.B. Lisa liebt Yoga und Kochen, ist introvertiert aber herzlich, wohnt in München…" maxlength="1000"></textarea>
+          <button class="btn btn-sm" id="p-ai-analyze-btn" type="button" style="margin-top:var(--sp-2);">✨ Analysieren</button>
+        </div>
+        <div class="form-row full" id="p-ai-chips-row" style="display:none;">
+          <label>Extrahierte Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;">— klicken zum Entfernen</span></label>
+          <div id="p-ai-chips" class="ai-chips"></div>
+          <div class="ai-chip-input-row">
+            <input id="p-ai-chip-input" placeholder="Tag hinzufügen…" maxlength="50">
+            <button class="btn btn-sm" id="p-ai-chip-add" type="button">+</button>
+          </div>
+        </div>
       </div>
       <div class="modal-actions">
         <button class="btn" data-modal-close="person-modal">Abbrechen</button>
@@ -279,6 +299,37 @@
       <div class="modal-title" id="history-modal-title">Verlauf</div>
       <div id="history-content"></div>
       <div class="modal-actions"><button class="btn btn-primary" data-modal-close="history-modal">Schließen</button></div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+    <div class="modal">
+      <div class="modal-title" id="settings-modal-title">Einstellungen</div>
+      <div class="settings-section">
+        <div class="settings-section__title">KI-Vorschläge</div>
+        <p class="settings-section__desc">Erhalte KI-basierte Vorschläge für Aktivitäten, Geschenke und Freundes-Profile.</p>
+        <label class="toggle-row" id="ai-toggle-row">
+          <input type="checkbox" id="ai-enabled-toggle">
+          <span>KI-Vorschläge aktivieren</span>
+        </label>
+        <div id="ai-consent-info" class="settings-consent-info" style="display:none;">
+          ✓ Aktiviert seit <span id="ai-consent-date"></span>
+        </div>
+        <div id="ai-disclosure" class="settings-disclosure" style="display:none;">
+          <p>Folgende Daten werden an die KI gesendet:</p>
+          <ul>
+            <li>Vorname</li>
+            <li>Stadt</li>
+            <li>Interessen &amp; Kategorie</li>
+            <li>Persönlichkeit &amp; Energielevel</li>
+          </ul>
+          <p>Deine Daten werden nicht für KI-Training verwendet.</p>
+          <button class="btn btn-primary" id="ai-consent-btn" style="width:100%;margin-top:var(--sp-3);">Verstanden &amp; Aktivieren</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" data-modal-close="settings-modal">Schließen</button>
+      </div>
     </div>
   </div>
 

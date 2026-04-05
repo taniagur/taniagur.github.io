@@ -1973,7 +1973,122 @@ select { cursor: pointer; }
 }
 
 /* ============================================================
-   32. REDUCED MOTION — respect user's motion preference
+   32. SETTINGS MODAL
+   ============================================================ */
+.settings-section {
+  margin-bottom: var(--sp-4);
+}
+.settings-section__title {
+  font-family: var(--font-head);
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--sp-1);
+}
+.settings-section__desc {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin-bottom: var(--sp-3);
+  line-height: 1.5;
+}
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-base);
+  cursor: pointer;
+  padding: var(--sp-2) 0;
+}
+.toggle-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.settings-consent-info {
+  font-size: var(--text-sm);
+  color: var(--green);
+  padding: var(--sp-2) 0;
+}
+.settings-disclosure {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+  margin-top: var(--sp-3);
+  font-size: var(--text-sm);
+  color: var(--text);
+  line-height: 1.6;
+}
+.settings-disclosure ul {
+  list-style: disc;
+  padding-left: var(--sp-5);
+  margin: var(--sp-2) 0;
+}
+.settings-disclosure li {
+  margin-bottom: var(--sp-1);
+}
+.sidebar__footer-btns {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+/* ============================================================
+   33. AI PROFILE SECTION (friend modal)
+   ============================================================ */
+.ai-profile-section {
+  border-top: 1px solid var(--border);
+  padding-top: var(--sp-3);
+  margin-top: var(--sp-2);
+}
+.ai-profile-section__header {
+  font-family: var(--font-head);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: var(--sp-3);
+}
+.ai-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-2);
+}
+.ai-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px var(--sp-2);
+  font-size: var(--text-xs);
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+  cursor: default;
+}
+.ai-chip__label {
+  font-weight: 600;
+  color: var(--muted);
+  margin-right: 2px;
+}
+.ai-chip__remove {
+  cursor: pointer;
+  opacity: 0.5;
+  font-size: 14px;
+  line-height: 1;
+}
+.ai-chip__remove:hover { opacity: 1; }
+.ai-chip-input-row {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+.ai-chip-input-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ============================================================
+   34. REDUCED MOTION — respect user's motion preference
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

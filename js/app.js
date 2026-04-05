@@ -198,6 +198,59 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   setState({ friends: [], activities: [], events: [], user: null });
 });
 
+// Settings modal
+document.getElementById('settings-btn').addEventListener('click', () => {
+  const { profile } = getState();
+  const toggle = document.getElementById('ai-enabled-toggle');
+  const consentInfo = document.getElementById('ai-consent-info');
+  const disclosure = document.getElementById('ai-disclosure');
+  const isEnabled = !!profile?.settings?.ai_enabled;
+  toggle.checked = isEnabled;
+  // Show consent date if already enabled
+  if (isEnabled && profile?.settings?.ai_consent_date) {
+    consentInfo.style.display = '';
+    document.getElementById('ai-consent-date').textContent =
+      new Date(profile.settings.ai_consent_date).toLocaleDateString('de-DE');
+    disclosure.style.display = 'none';
+  } else {
+    consentInfo.style.display = 'none';
+    disclosure.style.display = 'none';
+  }
+  document.getElementById('settings-modal').classList.add('open');
+});
+
+// AI toggle — show disclosure on first enable
+document.getElementById('ai-enabled-toggle').addEventListener('change', async (e) => {
+  const disclosure = document.getElementById('ai-disclosure');
+  const consentInfo = document.getElementById('ai-consent-info');
+  if (e.target.checked) {
+    // Show disclosure for consent
+    disclosure.style.display = '';
+    e.target.checked = false; // Don't enable yet — wait for consent button
+  } else {
+    // Disable AI
+    disclosure.style.display = 'none';
+    consentInfo.style.display = 'none';
+    const { profile } = getState();
+    const settings = { ...(profile?.settings ?? {}), ai_enabled: false };
+    setState({ profile: { ...profile, settings } });
+    await Store.updateProfileSettings({ ai_enabled: false });
+  }
+});
+
+// AI consent button — user confirms after reading disclosure
+document.getElementById('ai-consent-btn').addEventListener('click', async () => {
+  const { profile } = getState();
+  const now = new Date().toISOString();
+  const settings = { ...(profile?.settings ?? {}), ai_enabled: true, ai_consent_date: now };
+  setState({ profile: { ...profile, settings } });
+  document.getElementById('ai-enabled-toggle').checked = true;
+  document.getElementById('ai-disclosure').style.display = 'none';
+  document.getElementById('ai-consent-info').style.display = '';
+  document.getElementById('ai-consent-date').textContent = new Date(now).toLocaleDateString('de-DE');
+  await Store.updateProfileSettings({ ai_enabled: true, ai_consent_date: now });
+});
+
 // ============================================================
 // USER INFO
 // ============================================================
