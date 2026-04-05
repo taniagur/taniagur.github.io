@@ -171,7 +171,8 @@ function renderSuggResult() {
   if (resPeople) {
     resPeople.innerHTML = invited.map((f, i) => {
       const d  = dSince(f.last_seen);
-      const ut = d > 90 ? `<span class="tag tag-red" style="font-size:10px;padding:1px 5px;">${d}T.</span>`
+      const ut = !f.last_seen ? '<span class="tag tag-red" style="font-size:10px;padding:1px 5px;">Noch nie</span>'
+               : d > 90 ? `<span class="tag tag-red" style="font-size:10px;padding:1px 5px;">${d}T.</span>`
                : d > 30 ? `<span class="tag tag-yellow" style="font-size:10px;padding:1px 5px;">${d}T.</span>` : '';
       return `<div class="person-chip" data-action="swap" data-index="${i}" title="Klicken zum Tauschen" style="cursor:pointer;">
         <div class="chip-avatar ${avc(f.id, f.category)}">${ini(f.name)}</div>
@@ -220,17 +221,28 @@ function generateSuggestion(forceIds) {
     ? [...pool].sort((a, b) => b._score - a._score)
     : pool.sort(() => Math.random() - .5);
 
-  const maxP  = Math.min(act.max_people ?? 99, pool.length);
   const minP  = Math.max(act.min_people ?? 1, 1);
+  const maxP  = Math.min(act.max_people ?? 99, pool.length);
+
+  if (pool.length < minP) {
+    showToast(`Nicht genug Freunde für diese Aktivität (${pool.length} verfügbar, ${minP} nötig).`, 'error');
+    return;
+  }
+
   const count = minP + Math.floor(Math.random() * Math.max(1, maxP - minP + 1));
 
   let invited = [];
+  let remaining = [...pool];
+
   if (forceIds) {
-    forceIds.forEach(fid => { const f = friends.find(x => x.id === fid); if (f) invited.push(f); });
-    pool = pool.filter(f => !forceIds.includes(f.id));
+    forceIds.forEach(fid => {
+      const f = remaining.find(x => x.id === fid);
+      if (f) { invited.push(f); remaining = remaining.filter(x => x.id !== fid); }
+    });
   }
-  for (let i = invited.length; i < Math.min(count, invited.length + pool.length); i++) {
-    invited.push(pool[i - invited.length]);
+
+  while (invited.length < count && remaining.length > 0) {
+    invited.push(remaining.shift());
   }
 
   _lastSugg = { activity: act, invited: [...invited], date: dateVal, mode: _currentMode };
@@ -252,12 +264,13 @@ function openSwap(index) {
     <div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Tausche <strong style="font-weight:500;">${h(cur.name)}</strong> gegen:</div>
     ${alts.map(f => {
       const d   = dSince(f.last_seen);
-      const cls = d > 90 ? 'tag-red' : d > 30 ? 'tag-yellow' : 'tag-green';
+      const cls = !f.last_seen ? 'tag-gray' : d > 90 ? 'tag-red' : d > 30 ? 'tag-yellow' : 'tag-green';
+      const lbl = !f.last_seen ? 'Noch nie' : 'vor ' + d + 'T.';
       return `<div class="overdue-row" style="cursor:pointer;" data-action="do-swap" data-id="${f.id}">
         <div class="person-avatar ${avc(f.id, f.category)}" style="width:32px;height:32px;font-size:12px;margin:0;flex-shrink:0;">${ini(f.name)}</div>
         <div style="flex:1;font-size:14px;font-weight:500;">${h(f.name)}</div>
         <div style="font-size:12px;color:var(--muted);">${h(f.city ?? '')}</div>
-        <span class="tag ${cls}">${f.last_seen ? 'vor ' + d + 'T.' : 'Nie'}</span>
+        <span class="tag ${cls}">${lbl}</span>
       </div>`;
     }).join('')}`;
   document.getElementById('swap-modal').classList.add('open');
@@ -348,7 +361,7 @@ export function render(container, mode = 'home') {
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <div style="font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.03em;text-transform:uppercase;">Einzuladen <span style="font-weight:400;font-size:11px;">— klicken zum Tauschen</span></div>
-        <button class="btn btn-ghost btn-sm" id="rerool-btn">↺ Neu würfeln</button>
+        <button class="btn btn-ghost btn-sm" id="reroll-btn">↺ Neu würfeln</button>
       </div>
       <div id="res-people" class="result-people"></div>
       <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
@@ -390,7 +403,7 @@ export function render(container, mode = 'home') {
     }
 
     // suggest btn
-    if (target.id === 'suggest-btn' || target.id === 'rerool-btn') {
+    if (target.id === 'suggest-btn' || target.id === 'reroll-btn') {
       generateSuggestion();
       return;
     }
