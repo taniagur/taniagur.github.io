@@ -217,9 +217,26 @@ function generateSuggestion(forceIds) {
     if (filtered.length >= (act.min_people ?? 1)) pool = filtered;
   }
 
-  pool = prio
-    ? [...pool].sort((a, b) => b._score - a._score)
-    : pool.sort(() => Math.random() - .5);
+  // Fisher-Yates shuffle
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // When "prioritize long unseen" is on, use weighted random (score as probability)
+  // instead of strict sort — ensures variety while still favoring high-score friends
+  if (prio) {
+    pool = shuffle(pool).sort((a, b) => {
+      // Add large random jitter (0–40) to score so the order varies each time
+      return (b._score + Math.random() * 40) - (a._score + Math.random() * 40);
+    });
+  } else {
+    pool = shuffle(pool);
+  }
 
   const minP  = Math.max(act.min_people ?? 1, 1);
   const maxP  = Math.min(act.max_people ?? 99, pool.length);
@@ -229,7 +246,8 @@ function generateSuggestion(forceIds) {
     return;
   }
 
-  const count = minP + Math.floor(Math.random() * Math.max(1, maxP - minP + 1));
+  // Truly random count between min and max
+  const count = minP + Math.floor(Math.random() * (maxP - minP + 1));
 
   let invited = [];
   let remaining = [...pool];
