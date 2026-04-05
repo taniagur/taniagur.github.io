@@ -8,6 +8,7 @@ const LIMITS = { name: 100, city: 100, notes: 2000 };
 let _container         = null;
 let _unsubscribe       = null;
 let _delegHandler      = null;
+let _changeHandler     = null;
 let _saveHandler       = null;
 let _counterCleanups   = [];
 
@@ -67,12 +68,12 @@ function renderFriendGrid() {
     <span><i data-lucide="layers" class="icon icon--sm"></i> ${ec}× Treffen</span>
   </div>
   <div class="score-bar"><div class="score-fill" style="width:${score}%"></div></div>
-  <div style="display:flex;gap:4px;flex-wrap:wrap;">
+  <div class="friend-card__tags">
     <span class="badge ${pcls}">${plbl}</span>
     <span class="tag tag-gray">${catlab(f.category)}</span>
     ${dayTags}
   </div>
-  ${f.notes ? `<div style="margin-top:10px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px;white-space:pre-line;">${h(f.notes)}</div>` : ''}
+  ${f.notes ? `<div class="friend-card__notes">${h(f.notes)}</div>` : ''}
   <div class="friend-card__actions">
     <button class="btn btn-sm" data-action="edit" data-id="${f.id}">Bearbeiten</button>
     <button class="btn btn-sm" data-action="history" data-id="${f.id}">Verlauf</button>
@@ -230,11 +231,12 @@ export function render(container) {
     if (historyEl) { showHistory(historyEl.dataset.id); return; }
   };
 
-  // Filter change
   container.addEventListener('click', _delegHandler);
-  container.addEventListener('change', e => {
+
+  _changeHandler = e => {
     if (e.target.id === 'friend-filter-category') renderFriendGrid();
-  });
+  };
+  container.addEventListener('change', _changeHandler);
 
   _saveHandler = () => savePerson();
   document.getElementById('person-save-btn').addEventListener('click', _saveHandler);
@@ -246,6 +248,10 @@ export function cleanup() {
   if (_delegHandler && _container) {
     _container.removeEventListener('click', _delegHandler);
     _delegHandler = null;
+  }
+  if (_changeHandler && _container) {
+    _container.removeEventListener('change', _changeHandler);
+    _changeHandler = null;
   }
   if (_saveHandler) {
     const btn = document.getElementById('person-save-btn');

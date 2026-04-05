@@ -16,7 +16,6 @@ let _subPage = 'calendar';
 let _calSaveHandler  = null;
 let _gcalHandler     = null;
 let _icsHandler      = null;
-let _addEventHandler = null;
 
 // ============================================================
 // CALENDAR
@@ -304,11 +303,6 @@ export function render(container, mode = 'calendar') {
   _unsubscribe = subscribe(() => {
     if (_subPage === 'calendar') {
       renderCalendar();
-      // Refresh day detail if open
-      const dd = document.getElementById('day-detail');
-      if (dd && dd.style.display !== 'none') {
-        // Re-render current selected day — find from title or skip
-      }
     } else {
       renderLog();
     }

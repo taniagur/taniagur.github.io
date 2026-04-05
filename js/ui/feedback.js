@@ -2,7 +2,10 @@ export function showToast(message, type='', undoCb=null, duration=4500) {
   const c  = document.getElementById('toast-container');
   const el = document.createElement('div');
   el.className = 'toast' + (type ? ' '+type : '');
-  el.innerHTML = `<span style="flex:1;">${message}</span>`;
+  const msg = document.createElement('span');
+  msg.style.flex = '1';
+  msg.textContent = message;
+  el.appendChild(msg);
   if (undoCb) {
     const u = document.createElement('span');
     u.className = 'toast-undo';
@@ -19,5 +22,9 @@ export function showLoading(container) {
 }
 
 export function showEmpty(container, message='Keine Einträge gefunden.') {
-  container.innerHTML = `<div class="empty-state">${message}</div>`;
+  const div = document.createElement('div');
+  div.className = 'empty-state';
+  div.textContent = message;
+  container.innerHTML = '';
+  container.appendChild(div);
 }

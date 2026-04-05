@@ -1,5 +1,4 @@
 import * as Auth from '../auth.js';
-import { supabase } from '../supabase-client.js';
 import { showToast } from '../ui/feedback.js';
 
 const ONBOARDING_KEY = 'sp_onboarding_done';
@@ -14,12 +13,6 @@ export function showOnboardingIfNeeded() {
   if (localStorage.getItem(ONBOARDING_KEY)) return;
   const overlay = document.getElementById('onboarding-overlay');
   if (overlay) overlay.style.display = 'flex';
-}
-
-function dismissOnboarding() {
-  localStorage.setItem(ONBOARDING_KEY, '1');
-  const overlay = document.getElementById('onboarding-overlay');
-  if (overlay) overlay.style.display = 'none';
 }
 
 // ============================================================
@@ -95,9 +88,7 @@ async function handleForgot() {
   btn.disabled = true;
 
   try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + window.location.pathname,
-    });
+    const { error } = await Auth.resetPassword(email);
     if (error) {
       errEl.textContent = error.message;
     } else {

@@ -20,6 +20,13 @@ export async function getCurrentUser() {
   return { data, error };
 }
 
+export async function resetPassword(email) {
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname,
+  });
+  return { data, error };
+}
+
 export function onAuthStateChange(callback) {
   const { data, error } = supabase.auth.onAuthStateChange(callback);
   return { data, error };
