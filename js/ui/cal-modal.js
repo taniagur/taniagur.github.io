@@ -134,7 +134,7 @@ export async function saveToGoogleCal() {
   const btn = document.getElementById('cal-gcal-btn');
   const st  = document.getElementById('gcal-status');
   btn.classList.add('btn-loading');
-  st.style.display='block'; st.style.background='rgba(74,133,244,.08)'; st.style.color='#1a3a8a';
+  st.style.display='block'; st.style.background='var(--accent-bg)'; st.style.color='var(--accent)';
   st.textContent = 'Wird in Google Calendar eingetragen…';
   const [hh, mm] = (time ?? '12:00').split(':');
   const endH = pad2(Math.min(parseInt(hh)+Math.floor(act.duration ?? 2), 23));
@@ -148,11 +148,11 @@ export async function saveToGoogleCal() {
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
-    st.style.background='rgba(60,140,80,.08)'; st.style.color='#1a6a2a';
+    st.style.background='var(--green-bg)'; st.style.color='var(--green)';
     st.textContent = '✓ In Google Calendar eingetragen!';
     saveCalEvent();
   } catch(err) {
-    st.style.background='rgba(180,60,60,.08)'; st.style.color='#8a1a1a';
+    st.style.background='var(--danger-bg)'; st.style.color='var(--danger)';
     st.textContent = `Fehler: ${err.message}. ICS-Export als Alternative nutzen.`;
   } finally {
     btn.classList.remove('btn-loading');
