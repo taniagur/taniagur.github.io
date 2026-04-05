@@ -1,5 +1,5 @@
 /* ============================================================
-   SOZIALPLANER — Mokka Design System
+   SOCIAL PLANNER — Mokka Design System
    ============================================================ */
 
 /* ------------------------------------------------------------
@@ -201,8 +201,9 @@ textarea:focus-visible {
 }
 
 .sidebar__title {
-  font-size: var(--text-base);
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--font-head);
   color: var(--text);
   letter-spacing: -0.01em;
   padding: var(--sp-1) var(--sp-2);
@@ -528,10 +529,20 @@ select { cursor: pointer; }
   color: var(--danger);
   border-color: transparent;
   background: transparent;
+  /* same sizing as .btn — only color differs */
 }
 .btn-danger:hover {
   background: var(--danger-bg);
   border-color: transparent;
+}
+
+/* Ensure uniform button sizing inside friend-card actions */
+.friend-card__actions .btn,
+.friend-card__actions .btn-sm {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 4px var(--sp-2);
 }
 
 .btn-ghost {
@@ -911,8 +922,8 @@ select { cursor: pointer; }
 }
 
 /* Score bar */
-.score-bar  { height: 3px; border-radius: 2px; background: var(--bg-3); margin-top: var(--sp-2); overflow: hidden; }
-.score-fill { height: 100%; border-radius: 2px; background: var(--accent); opacity: 0.6; }
+.score-bar  { height: 2px; border-radius: 1px; background: var(--bg-3); margin-top: var(--sp-2); overflow: hidden; }
+.score-fill { height: 100%; border-radius: 1px; background: var(--accent); opacity: 0.5; }
 
 /* ------------------------------------------------------------
    16. MODALS
@@ -1604,6 +1615,7 @@ select { cursor: pointer; }
 
 .friend-card__badges {
   display: flex;
+  align-items: center;
   gap: var(--sp-1);
   flex-wrap: wrap;
   justify-content: flex-end;

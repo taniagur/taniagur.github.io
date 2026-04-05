@@ -1,4 +1,4 @@
-# Sozialplaner
+# Social Planner
 
 Persönlicher Social-Planer: Freunde verwalten, Aktivitäten vorschlagen, Treffen planen und tracken.
 
