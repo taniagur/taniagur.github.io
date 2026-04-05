@@ -45,15 +45,14 @@ export async function saveCalEvent() {
   if (!date) { showToast('Bitte Datum wählen.', 'error'); return; }
   const btn = document.getElementById('cal-save-btn');
   btn.classList.add('btn-loading');
+  // Only columns that exist in the events table
   const payload = {
     date, time,
     activity_name: act?.name ?? 'Treffen',
-    people_ids: peopleIds,
-    people: people.join(', '),
     note, done: false, mode,
   };
   try {
-    const { data, error } = await Store.addEvent(payload);
+    const { data, error } = await Store.addEvent(payload, peopleIds);
     if (error) throw error;
     const { events, friends } = getState();
     const newEvents = [data[0], ...events];
