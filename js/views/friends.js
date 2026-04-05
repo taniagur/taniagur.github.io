@@ -15,13 +15,15 @@ let _delegHandler      = null;
 let _changeHandler     = null;
 let _saveHandler       = null;
 let _modalHandler      = null;
+let _aiModalHandler    = null;
 let _counterCleanups   = [];
 
 // ============================================================
 // RENDER GRID
 // ============================================================
 function renderFriendGrid() {
-  const { friends, events } = getState();
+  const { friends, events, profile: userProfile } = getState();
+  const aiEnabled = !!userProfile?.settings?.ai_enabled;
   const grid      = document.getElementById('friends-grid');
   if (!grid) return;
   const filterCat = document.getElementById('friend-filter-category')?.value ?? '';
@@ -82,6 +84,7 @@ function renderFriendGrid() {
   <div class="friend-card__actions">
     <button class="btn btn-sm" data-action="edit" data-id="${f.id}">Bearbeiten</button>
     <button class="btn btn-sm" data-action="history" data-id="${f.id}">Verlauf</button>
+    ${aiEnabled ? `<button class="btn btn-sm" data-action="ai-suggest" data-id="${f.id}">✨ Vorschlag</button>` : ''}
     <button class="btn btn-sm btn-danger" data-action="delete" data-id="${f.id}">Entfernen</button>
   </div>
 </div>`;
@@ -217,6 +220,123 @@ function addChip() {
   renderAIChips();
 }
 
+// ============================================================
+// AI ACTIVITY SUGGESTION
+// ============================================================
+let _suggestFriend = null;
+let _lastAISuggestion = null;
+
+function openAISuggestModal(friendId) {
+  const { friends } = getState();
+  const f = friends.find(x => x.id === friendId);
+  if (!f) return;
+  _suggestFriend = f;
+  _lastAISuggestion = null;
+
+  // Build transparency list
+  const prof = f.profile ?? {};
+  const dataItems = [
+    `Vorname: ${h(f.name.split(' ')[0])}`,
+    f.city ? `Stadt: ${h(f.city)}` : null,
+    f.category ? `Kategorie: ${h(catlab(f.category))}` : null,
+    prof.interessen?.length ? `Interessen: ${prof.interessen.map(i => h(i)).join(', ')}` : null,
+    prof.personality ? `Persönlichkeit: ${h(prof.personality)}` : null,
+    prof.energy_level ? `Energielevel: ${h(prof.energy_level)}` : null,
+    prof.relationship_depth ? `Beziehungsnähe: ${h(prof.relationship_depth)}` : null,
+  ].filter(Boolean);
+
+  document.getElementById('ai-suggest-modal-title').textContent = `✨ Vorschlag für ${f.name}`;
+  document.getElementById('ai-suggest-data-list').innerHTML = dataItems.map(d => `<li>${d}</li>`).join('');
+  document.getElementById('ai-suggest-loading').style.display = 'none';
+  document.getElementById('ai-suggest-result').style.display = 'none';
+  document.getElementById('ai-suggest-generate-btn').style.display = '';
+  document.getElementById('ai-suggest-retry-btn').style.display = 'none';
+  document.getElementById('ai-suggest-save-btn').style.display = 'none';
+  document.getElementById('ai-suggest-modal').classList.add('open');
+}
+
+async function generateAISuggestion() {
+  if (!_suggestFriend) return;
+  const f = _suggestFriend;
+  const prof = f.profile ?? {};
+
+  const payload = {
+    profile: {
+      vorname: f.name.split(' ')[0],
+      stadt: f.city ?? null,
+      kategorie: catlab(f.category),
+      interessen: prof.interessen ?? [],
+      personality: prof.personality ?? null,
+      energy_level: prof.energy_level ?? null,
+      relationship_depth: prof.relationship_depth ?? null,
+    },
+  };
+
+  document.getElementById('ai-suggest-loading').style.display = '';
+  document.getElementById('ai-suggest-result').style.display = 'none';
+  document.getElementById('ai-suggest-generate-btn').style.display = 'none';
+  document.getElementById('ai-suggest-retry-btn').style.display = 'none';
+  document.getElementById('ai-suggest-save-btn').style.display = 'none';
+
+  try {
+    const result = await callAI('activity', payload);
+    _lastAISuggestion = result;
+    document.getElementById('ai-suggest-result').innerHTML = `
+      <div class="ai-suggest-card">
+        <div class="ai-suggest-card__name">${h(result.name ?? 'Vorschlag')}</div>
+        ${result.beschreibung ? `<div class="ai-suggest-card__desc">${h(result.beschreibung)}</div>` : ''}
+        <div class="ai-suggest-card__meta">
+          ${result.ort ? `<div><span class="ai-suggest-card__label">Ort</span>${h(result.ort)}</div>` : ''}
+          ${result.budget ? `<div><span class="ai-suggest-card__label">Budget</span>${h(String(result.budget))}</div>` : ''}
+          ${result.dauer ? `<div><span class="ai-suggest-card__label">Dauer</span>${h(String(result.dauer))}</div>` : ''}
+          ${result.energie ? `<div><span class="ai-suggest-card__label">Energie</span>${h(result.energie)}</div>` : ''}
+        </div>
+        ${result.warum ? `<div class="ai-suggest-card__reason">${h(result.warum)}</div>` : ''}
+      </div>`;
+    document.getElementById('ai-suggest-result').style.display = '';
+    document.getElementById('ai-suggest-retry-btn').style.display = '';
+    document.getElementById('ai-suggest-save-btn').style.display = '';
+  } catch (err) {
+    const msg = /rate/i.test(err.message) ? 'Tageslimit erreicht. Versuche es morgen erneut.'
+              : /fetch|network|timeout/i.test(err.message) ? 'KI nicht erreichbar. Bitte später erneut versuchen.'
+              : err.message;
+    document.getElementById('ai-suggest-result').innerHTML =
+      `<div style="color:var(--danger);font-size:var(--text-sm);padding:var(--sp-3);">${h(msg)}</div>`;
+    document.getElementById('ai-suggest-result').style.display = '';
+    document.getElementById('ai-suggest-retry-btn').style.display = '';
+  } finally {
+    document.getElementById('ai-suggest-loading').style.display = 'none';
+  }
+}
+
+async function saveAISuggestionAsActivity() {
+  if (!_lastAISuggestion) return;
+  const s = _lastAISuggestion;
+  const payload = {
+    name: s.name ?? 'KI-Vorschlag',
+    location: s.ort ?? '',
+    budget: parseFloat(String(s.budget).replace(/[^\d.]/g, '')) || 0,
+    energy: ['low', 'medium', 'high'].includes(s.energie) ? s.energie : 'medium',
+    min_people: 1,
+    max_people: 4,
+    duration: parseFloat(String(s.dauer).replace(/[^\d.]/g, '')) || 0,
+    mode: 'social',
+    inout: 'both',
+    tags: [],
+    todos: null,
+  };
+  try {
+    const { data, error } = await Store.addActivity(payload);
+    if (error) throw error;
+    const { activities } = getState();
+    setState({ activities: [data[0], ...activities] });
+    document.getElementById('ai-suggest-modal').classList.remove('open');
+    showToast(`"${h(s.name)}" als Aktivität gespeichert.`, 'success');
+  } catch (err) {
+    showToast('Fehler: ' + err.message, 'error');
+  }
+}
+
 async function savePerson() {
   const name = sanitize(document.getElementById('p-name').value.trim(), LIMITS.name);
   if (!name) { showToast('Name ist Pflichtfeld.', 'error'); return; }
@@ -337,6 +457,9 @@ export function render(container) {
 
     const historyEl = target.closest('[data-action="history"]');
     if (historyEl) { showHistory(historyEl.dataset.id); return; }
+
+    const aiSuggestEl = target.closest('[data-action="ai-suggest"]');
+    if (aiSuggestEl) { openAISuggestModal(aiSuggestEl.dataset.id); return; }
   };
 
   container.addEventListener('click', _delegHandler);
@@ -363,6 +486,15 @@ export function render(container) {
     if (e.key === 'Enter') { e.preventDefault(); addChip(); }
   });
 
+  // AI suggest modal buttons (global DOM)
+  const aiSuggestModal = document.getElementById('ai-suggest-modal');
+  _aiModalHandler = e => {
+    if (e.target.id === 'ai-suggest-generate-btn') { generateAISuggestion(); return; }
+    if (e.target.id === 'ai-suggest-retry-btn')    { generateAISuggestion(); return; }
+    if (e.target.id === 'ai-suggest-save-btn')     { saveAISuggestionAsActivity(); return; }
+  };
+  aiSuggestModal?.addEventListener('click', _aiModalHandler);
+
   _unsubscribe = subscribe(() => renderFriendGrid());
 }
 
@@ -374,6 +506,10 @@ export function cleanup() {
   if (_modalHandler) {
     document.getElementById('person-modal')?.removeEventListener('click', _modalHandler);
     _modalHandler = null;
+  }
+  if (_aiModalHandler) {
+    document.getElementById('ai-suggest-modal')?.removeEventListener('click', _aiModalHandler);
+    _aiModalHandler = null;
   }
   if (_changeHandler && _container) {
     _container.removeEventListener('change', _changeHandler);

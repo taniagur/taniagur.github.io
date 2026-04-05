@@ -294,6 +294,29 @@
     </div>
   </div>
 
+  <div class="modal-bg" id="ai-suggest-modal" role="dialog" aria-modal="true" aria-labelledby="ai-suggest-modal-title">
+    <div class="modal">
+      <div class="modal-title" id="ai-suggest-modal-title">✨ Aktivität vorschlagen</div>
+      <div id="ai-suggest-transparency" class="settings-disclosure" style="margin-bottom:var(--sp-4);">
+        <p><strong>Diese Daten werden an die KI gesendet:</strong></p>
+        <ul id="ai-suggest-data-list"></ul>
+      </div>
+      <div id="ai-suggest-content">
+        <div id="ai-suggest-loading" style="display:none;text-align:center;padding:var(--sp-5);">
+          <div class="loading-spinner" style="margin:0 auto var(--sp-3);"></div>
+          <div style="font-size:var(--text-sm);color:var(--muted);">KI denkt nach…</div>
+        </div>
+        <div id="ai-suggest-result" style="display:none;"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" data-modal-close="ai-suggest-modal">Schließen</button>
+        <button class="btn" id="ai-suggest-retry-btn" style="display:none;">Anderer Vorschlag</button>
+        <button class="btn btn-primary" id="ai-suggest-generate-btn">Vorschlag generieren</button>
+        <button class="btn btn-primary" id="ai-suggest-save-btn" style="display:none;">Als Aktivität speichern</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-bg" id="history-modal" role="dialog" aria-modal="true" aria-labelledby="history-modal-title">
     <div class="modal">
       <div class="modal-title" id="history-modal-title">Verlauf</div>
