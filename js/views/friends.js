@@ -69,7 +69,7 @@ function renderFriendGrid() {
   <div class="score-bar"><div class="score-fill" style="width:${score}%"></div></div>
   <div style="display:flex;gap:4px;flex-wrap:wrap;">
     <span class="badge ${pcls}">${plbl}</span>
-    <span class="tag tag-gray" style="font-size:11px;">${catlab(f.category)}</span>
+    <span class="tag tag-gray">${catlab(f.category)}</span>
     ${dayTags}
   </div>
   ${f.notes ? `<div style="margin-top:10px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px;white-space:pre-line;">${h(f.notes)}</div>` : ''}
