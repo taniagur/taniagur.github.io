@@ -9,8 +9,9 @@ let _delegHandler    = null; // single delegated listener on #login-screen
 // ONBOARDING
 // ============================================================
 export function showOnboardingIfNeeded() {
-  const { profile } = getState();
-  if (profile?.settings?.onboarding_done) return;
+  const { profile, user } = getState();
+  // Only show if user is logged in, profile is loaded, and onboarding not yet done
+  if (!user || !profile || profile.settings?.onboarding_done !== false) return;
   const overlay = document.getElementById('onboarding-overlay');
   if (overlay) overlay.style.display = 'flex';
 }

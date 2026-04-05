@@ -8,6 +8,16 @@ export async function getProfile() {
     .select('settings')
     .eq('id', user.id)
     .maybeSingle();
+  if (!error && !data) {
+    // No profile row yet — create default
+    const defaults = { onboarding_done: false };
+    const { data: created, error: createErr } = await supabase
+      .from('profiles')
+      .upsert({ id: user.id, settings: defaults }, { onConflict: 'id' })
+      .select()
+      .single();
+    return { data: created ?? { settings: defaults }, error: createErr };
+  }
   return { data, error };
 }
 
